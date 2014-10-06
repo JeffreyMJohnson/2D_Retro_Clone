@@ -9,6 +9,8 @@ using namespace std;
 
 extern const int screenWidth = 1024;
 extern const int screenHeight = 768;
+extern const int NUM_ENEMYS = 4;
+
 
 //debug flag
 bool debug = true;

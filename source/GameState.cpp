@@ -25,6 +25,7 @@ GameState::GameState()
 	/*score = 0;
 	direction = 1;
 	bulletTexture = -1;*/
+	
 }
 
 
@@ -45,7 +46,7 @@ void GameState::Initialize()
 	player->SetSpriteId(CreateSprite("./images/cannon.png", player->GetWidth(), player->GetHeight(), true));
 	player->SetX(screenWidth * 0.5f);
 	player->SetY(100.0f);
-	player->SetSpeed(float(screenWidth));
+	player->SetSpeed(50.0f);
 
 	////add player to dynamic array
 	gameObjects.push_back(player);
@@ -54,7 +55,7 @@ void GameState::Initialize()
 
 	//bulletTexture = CreateSprite("./images/player_shot.png", 3, 20, true);
 
-	//CreateEnemies();
+	CreateEnemies();
 
 	//Highscores scores;
 	//scores.LoadScores();
@@ -74,8 +75,7 @@ void GameState::Destroy()
 	for (auto object : gameObjects)
 	{
 		DestroySprite(object->GetSpriteID());
-		//BUGBUG?? SHOULDN'T DELETE BE CALLED HERE??
-		//delete object;
+		delete object;
 	}
 	//DestroySprite(bulletTexture);
 }
@@ -110,7 +110,7 @@ void GameState::Destroy()
 //		}
 //	}
 //}
-
+//
 //void GameState::EnemyLogic(Enemy* a_enemy, bool& lowerAliens)
 //{
 //	if (a_enemy->GetX() > screenWidth * 0.9f && !lowerAliens)
@@ -136,6 +136,13 @@ void GameState::Destroy()
 
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
+	for (auto object : gameObjects)
+	{
+		if (dynamic_cast<Entity*>(object) != 0)
+		{
+			object->Update(a_timestep);
+		}
+	}
 	////escape key
 	//if (IsKeyDown(256))
 	//{
@@ -170,16 +177,16 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	//		PlayerLogic(dynamic_cast<Player*>(object), a_timestep);
 	//	}
 
-	//	if (dynamic_cast<Enemy*>(object) != 0)
-	//	{
-	//		//process enemy specific logic
-	//		Enemy* enemy = dynamic_cast<Enemy*>(object);
-	//		EnemyLogic(enemy, lowerAliens);
-	//		if (enemy->GetIsActive())
-	//		{
-	//			allDead = false;
-	//		}
-	//	}
+		//if (dynamic_cast<Enemy*>(object) != 0)
+		//{
+		//	//process enemy specific logic
+		//	Enemy* enemy = dynamic_cast<Enemy*>(object);
+		//	EnemyLogic(enemy, lowerAliens);
+		//	if (enemy->GetIsActive())
+		//	{
+		//		allDead = false;
+		//	}
+		//}
 
 	//	//update and draw objects
 	//	object->Update(a_timestep);
@@ -254,32 +261,33 @@ bool GameState::CheckCollision(float x1, float y1, float x2, float y2, float dis
 
 void GameState::CreateEnemies()
 {
-	////first enemy's position
-	//float enemyX = screenWidth * 0.2f;
-	//float enemyY = screenHeight *0.9f;
+	//first enemy's position
+	float enemyX = screenWidth * 0.2f;
+	float enemyY = screenHeight *0.9f;
 
-	//for (int i = 0; i < NUM_ENEMYS; i++)
-	//{
-	//	Enemy* enemy = new Enemy();
+	for (int i = 0; i < NUM_ENEMYS; i++)
+	{
+		Enemy* enemy = new Enemy();
 
-	//	enemy->SetSpriteId(CreateSprite("./images/invaders/invaders_1_00.png", 64, 32, true));
+		enemy->SetSpriteId(CreateSprite("./images/invaders_1_00.png", 64, 32, true));
 
-	//	//check if need new line of enemy
-	//	if (enemyX > screenWidth * 0.8f)
-	//	{
-	//		enemyX = screenWidth * 0.2f;
-	//		enemyY -= 0.04f * screenHeight;
-	//	}
+		//check if need new line of enemy
+		if (enemyX > screenWidth * 0.8f)
+		{
+			enemyX = screenWidth * 0.2f;
+			enemyY -= 0.04f * screenHeight;
+		}
 
-	//	//initialize position
-	//	enemy->SetPosition(enemyX, enemyY);
+		//initialize position
+		enemy->SetPosition(enemyX, enemyY);
 
-	//	//increment next enemy's x position
-	//	enemyX += 0.12f * screenWidth;
+		//increment next enemy's x position
+		enemyX += 0.12f * screenWidth;
 
-	//	enemy->SetScoreValue(30);
+		enemy->SetScoreValue(30);
+		
 
-	//	gameObjects.push_back(enemy);
-	//}
+		gameObjects.push_back(enemy);
+	}
 }
 

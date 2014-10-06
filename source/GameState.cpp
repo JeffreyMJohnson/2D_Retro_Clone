@@ -217,10 +217,10 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 
 void GameState::Draw()
 {
-	//for (auto object : gameObjects)
-	//{
-	//	object->Draw();
-	//}
+	for (auto object : gameObjects)
+	{
+		object->Draw();
+	}
 
 	//DrawLine(0, lineYPos, screenWidth, lineYPos, SColour(0x00, 0xFF, 0x00, 0xFF));
 

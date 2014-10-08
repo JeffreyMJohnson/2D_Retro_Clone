@@ -1,26 +1,78 @@
 #include "Enemy.h"
-#include<iostream>
+#include <iostream>
+#include <math.h>
 
-int Enemy::activeEnemyCount = 10;
+int Enemy::activeEnemyCount = 0;
 
 
 Enemy::Enemy()
 {
 	isActive = true;
-	width = 64;
-	height = 32;
-	speed = 10.0f;
 	direction = 1;
 	activeEnemyCount++;
+	isAttacking = false;
+	attackStartPos.x = 0;
+	attackStartPos.y = 0;
+	attackAngle = 1;
 }
 
 void Enemy::Update(float a_delta)
 {
-	EnemyLogic();
+
+	//all fucked up!!
 	if (isActive)
 	{
 		x += speed * direction * a_delta;
+		////x += speed * direction * a_delta;
+		//if (!isAttacking)
+		//{
+		//	attackStartPos.x = x;
+		//	attackStartPos.y = y;
+		//	isAttacking = true;
+		//}
+		//else
+		//{
+		//	if (y - attackStartPos.y < 50)
+		//	{
+		//		y += 10.0f * a_delta;
+		//	}
+		//	else
+		//	{
+		//		if (attackAngle < 50)
+		//		{
+		//			x += (50 * cos(attackAngle)) * a_delta;
+		//			attackAngle++;
+		//		}
+		//		else
+		//		{
+		//			isAttacking = false;
+		//			std::cout << "done\n";
+		//		}
+
+		//	}
+		//}
 	}
+}
+
+void Enemy::Attack(float timeDelta)
+{
+	//initalize data before starting
+	/*if (!isAttacking)
+	{
+		attackStartPos.x = x;
+		attackStartPos.y = y;
+	}
+	else
+	{
+		while (y - attackStartPos.y < 100)
+		{
+			y += speed * timeDelta;
+		}
+	}*/
+
+
+
+
 }
 
 void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
@@ -29,14 +81,14 @@ void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_right
 	rightMovementExtreme = a_rightExtreme;
 }
 
-//move the enemy 
-void Enemy::Move(float a_speed, int a_direction, float a_delta)
-{
-	//changed like lecture example
-	x += a_speed * a_direction * a_delta;
-
-
-}
+////move the enemy 
+//void Enemy::Move(float a_speed, int a_direction, float a_delta)
+//{
+//	//changed like lecture example
+//	x += a_speed * a_direction * a_delta;
+//
+//
+//}
 
 //draw the enemy
 void Enemy::Draw()
@@ -47,11 +99,6 @@ void Enemy::Draw()
 		DrawSprite(spriteID);
 	}
 
-}
-
-void Enemy::foo()
-{
-	std::cout << "foo\n";
 }
 
 /*
@@ -70,21 +117,6 @@ void Enemy::CheckCollisions()
 		y -= height / 2;
 		MoveSprite(spriteID, x, y);
 	}
-}
-
-void Enemy::EnemyLogic()
-{
-	if (x > screenWidth * 0.9f)
-	{
-		direction = -1;
-		//break;
-	}
-	else if (x < screenWidth * 0.1f)
-	{
-		direction = 1;
-		//break;
-	}
-
 }
 
 // SETTERS / GETTERS

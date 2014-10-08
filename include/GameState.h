@@ -27,11 +27,13 @@ private:
 	void DrawEnemies();
 
 	//void PlayerLogic(Player* a_player, float a_delta);
-	void EnemyLogic(Enemy* a_enemy, bool& lowerAliens);
+	void EnemyLogic(Enemy* a_enemy, float timeDelta);
+	void ReverseEnemies();
 
 	bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
 
 	std::vector<Entity*> gameObjects;
+	float attackTimer = 2.0f;
 
 	//Enemy enemies[NUM_ENEMYS];
 

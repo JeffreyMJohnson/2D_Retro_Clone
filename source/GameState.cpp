@@ -1,4 +1,5 @@
 #include "GameState.h"
+#include <iostream>
 
 
 extern const int screenWidth;
@@ -22,10 +23,7 @@ extern const int screenHeight;
 
 GameState::GameState()
 {
-	/*score = 0;
-	direction = 1;
-	bulletTexture = -1;*/
-	
+
 }
 
 
@@ -45,8 +43,8 @@ void GameState::Initialize()
 	player->SetMovementExtremes(0, screenWidth);
 	player->SetSpriteId(CreateSprite("./images/cannon.png", player->GetWidth(), player->GetHeight(), true));
 	player->SetX(screenWidth * 0.5f);
-	player->SetY(100.0f);
-	player->SetSpeed(50.0f);
+	player->SetY(50.0f);
+	player->SetSpeed(10.0f);
 
 	////add player to dynamic array
 	gameObjects.push_back(player);
@@ -78,6 +76,107 @@ void GameState::Destroy()
 		delete object;
 	}
 	//DestroySprite(bulletTexture);
+}
+
+void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
+{
+	
+	//enemies moving left and right logic
+	if (a_enemy->GetX() > screenWidth * 0.95f)
+	{
+		a_enemy->SetX(screenWidth * 0.95f);
+		ReverseEnemies();
+		//break;
+	}
+	else if (a_enemy->GetX() < screenWidth * 0.05f)
+	{
+		a_enemy->SetX(screenWidth * 0.05f);
+		ReverseEnemies();
+	}
+
+	/*
+	this is code to get x and y for circle!!!
+	float x, y;
+		if (angle <= 360)
+		{
+	x = xPos + (radius * cos(angle * 180 / PI));
+	y = yPos + (radius * sin(angle * 180 / PI));
+	angle += .0001f;
+
+	cout << "xpos: " << x << endl;
+	cout << "ypos: " << y << endl;
+	//system("pause");
+}
+		else
+		{
+			angle = 0.0f;
+			x = 0;
+			y = 0;
+		}
+
+		MoveSprite(myTextureHandle, x, y);
+	
+	*/
+
+	//enemies attack logic
+	/*
+	enemies will attack from left / right most column depending on placement of group in relation to screen center (if too
+	far to side, can't circle out) and after a certain time since last attack has elapsed. once column is selected, the top 
+	most enemy will circle out (clockwise if right side/ counter-clockwise if left)	and once y drops below lowest column the 
+	enemy selects an x on the opposite side of the player and then moves diagonally	across dropping bombs on regular time.  
+	If not hit, the enemy returns to screen at the same x and returns to column
+
+	want to implement if time:
+	enemy sprite rotating as circle is completed and points towards player position when firing.
+	*/
+	//which column? find enemy with lowest x and greatest x and which one of those is furthest from center
+	/*Enemy* lowestX = nullptr;
+	Enemy* highestX = nullptr;
+	for (auto object : gameObjects)
+	{
+		if (dynamic_cast<Enemy*>(object) != 0)
+		{
+			Enemy* enemy = dynamic_cast<Enemy*>(object);
+			if (lowestX == nullptr)
+			{
+				lowestX = enemy;
+			}
+			else if (highestX == nullptr)
+			{
+				highestX = enemy;
+			}
+			else
+			{
+				if (enemy->GetX() < lowestX->GetX())
+				{
+					lowestX = enemy;
+				}
+				if (enemy->GetX() > highestX->GetX())
+				{
+					highestX = enemy;
+				}
+			}
+		}
+	}*/
+//#ifdef _DEBUG
+//	std::cout << "low: " << lowestX->GetX() << std::endl;
+//	std::cout << "high: " << highestX->GetX() << std::endl;
+//	system("pause");
+//#endif
+
+
+
+
+}
+void GameState::ReverseEnemies()
+{
+	for (auto object : gameObjects)
+	{
+		if (dynamic_cast<Enemy*>(object) != 0)
+		{
+			dynamic_cast<Enemy*>(object)->SetDirection(dynamic_cast<Enemy*>(object)->GetDirection() * -1);
+		}
+	}
 }
 
 //void GameState::PlayerLogic(Player* a_player, float a_delta)
@@ -138,10 +237,12 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
 	for (auto object : gameObjects)
 	{
-		if (dynamic_cast<Entity*>(object) != 0)
+		object->Update(a_timestep);
+		if (dynamic_cast<Enemy*>(object) != 0)
 		{
-			object->Update(a_timestep);
+			EnemyLogic(dynamic_cast<Enemy*>(object), a_timestep);
 		}
+		
 	}
 	////escape key
 	//if (IsKeyDown(256))
@@ -177,16 +278,16 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	//		PlayerLogic(dynamic_cast<Player*>(object), a_timestep);
 	//	}
 
-		//if (dynamic_cast<Enemy*>(object) != 0)
-		//{
-		//	//process enemy specific logic
-		//	Enemy* enemy = dynamic_cast<Enemy*>(object);
-		//	EnemyLogic(enemy, lowerAliens);
-		//	if (enemy->GetIsActive())
-		//	{
-		//		allDead = false;
-		//	}
-		//}
+	//if (dynamic_cast<Enemy*>(object) != 0)
+	//{
+	//	//process enemy specific logic
+	//	Enemy* enemy = dynamic_cast<Enemy*>(object);
+	//	EnemyLogic(enemy, lowerAliens);
+	//	if (enemy->GetIsActive())
+	//	{
+	//		allDead = false;
+	//	}
+	//}
 
 	//	//update and draw objects
 	//	object->Update(a_timestep);
@@ -195,29 +296,29 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 
 	/*if (allDead)
 	{
-		gameOver = true;
-		return;
+	gameOver = true;
+	return;
 	}*/
 
 	//with better logic this could be put in the main object update loop 
 	/*if (lowerAliens)
 	{
-		for (auto object : gameObjects)
-		{
-			if (dynamic_cast<Enemy*>(object) != 0)
-			{
-				Enemy* enemy = dynamic_cast<Enemy*>(object);
+	for (auto object : gameObjects)
+	{
+	if (dynamic_cast<Enemy*>(object) != 0)
+	{
+	Enemy* enemy = dynamic_cast<Enemy*>(object);
 
-				if (enemy->GetY() <= (0.05f * screenHeight))
-				{
-					gameOver = true;
-					gameOverTimer = 2;
-					return;
-				}
+	if (enemy->GetY() <= (0.05f * screenHeight))
+	{
+	gameOver = true;
+	gameOverTimer = 2;
+	return;
+	}
 
-				enemy->SetY(enemy->GetY() - (0.05f * screenHeight));
-			}
-		}
+	enemy->SetY(enemy->GetY() - (0.05f * screenHeight));
+	}
+	}
 	}*/
 
 }
@@ -267,9 +368,12 @@ void GameState::CreateEnemies()
 
 	for (int i = 0; i < NUM_ENEMYS; i++)
 	{
-		Enemy* enemy = new Enemy();
 
-		enemy->SetSpriteId(CreateSprite("./images/invaders_1_00.png", 64, 32, true));
+		Enemy* enemy = new Enemy();
+		enemy->SetSize(58, 26);
+		enemy->SetSpeed(3.5f);
+
+		enemy->SetSpriteId(CreateSprite("./images/invaders_1_00.png", enemy->GetWidth(), enemy->GetHeight(), true));
 
 		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
@@ -282,10 +386,10 @@ void GameState::CreateEnemies()
 		enemy->SetPosition(enemyX, enemyY);
 
 		//increment next enemy's x position
-		enemyX += 0.12f * screenWidth;
+		enemyX += 0.1f * screenWidth;
 
 		enemy->SetScoreValue(30);
-		
+
 
 		gameObjects.push_back(enemy);
 	}

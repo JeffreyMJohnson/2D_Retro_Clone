@@ -11,11 +11,17 @@ extern const int screenWidth;
 extern const int screenHeight;
 extern const int NUM_ENEMYS;
 
+struct Point2d
+{
+	float x, y;
+};
+
 class Enemy : public Entity
 {
 public:
 
 	static int activeEnemyCount;
+	bool isAttacking;
 
 	Enemy();
 
@@ -28,10 +34,10 @@ public:
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
 	
-	//move enemy 
-	void Move(float a_speed, int a_direction, float a_delta);
+	////move enemy 
+	//void Move(float a_speed, int a_direction, float a_delta);
 
-	void EnemyLogic();
+	void Attack(float timeDelta);
 
 	void SetSpeedX(float a_speedX);
 	float GetSpeedX();
@@ -54,7 +60,6 @@ public:
 	void SetIsActive(bool a_isActive);
 	bool GetIsActive();
 
-	static void foo();
 	
 
 	~Enemy();	
@@ -68,6 +73,9 @@ private:
 	bool isActive;
 	float speed;
 	int direction;
+	Point2d attackStartPos;
+	float attackAngle;
+	
 	
 	
 

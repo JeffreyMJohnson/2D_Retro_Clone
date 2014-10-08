@@ -60,6 +60,15 @@ public:
 	void SetIsActive(bool a_isActive);
 	bool GetIsActive();
 
+	void SetOriginalPos(Point2d a_point);
+	Point2d GetOriginalPosition();
+
+	void SetAttackAngle(float a_angle);
+	float GetAttackAngle();
+
+	void SetAttackRadius(float a_radius);
+	float GetAttackRadius();
+
 	
 
 	~Enemy();	
@@ -73,8 +82,9 @@ private:
 	bool isActive;
 	float speed;
 	int direction;
-	Point2d attackStartPos;
+	Point2d originalPosition;
 	float attackAngle;
+	float attackRadius;
 	
 	
 	

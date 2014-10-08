@@ -23,7 +23,6 @@ extern const int screenHeight;
 
 GameState::GameState()
 {
-
 }
 
 
@@ -80,7 +79,8 @@ void GameState::Destroy()
 
 void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 {
-	
+
+
 	//enemies moving left and right logic
 	if (a_enemy->GetX() > screenWidth * 0.95f)
 	{
@@ -94,11 +94,48 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 		ReverseEnemies();
 	}
 
+	if (attackTimer >= 0)
+	{
+		attackTimer -= timeDelta;
+	}
+	else
+	{
+		attackTimer = 50.0f;
+		a_enemy->isAttacking = true;
+
+	}
+	if (a_enemy->isAttacking)
+	{
+		if (attackAngle == 90.0f)
+		{
+			Point2d originalPos;
+			originalPos.x = a_enemy->GetX();
+			originalPos.y = a_enemy->GetY();
+			a_enemy->SetOriginalPos(originalPos);
+		}
+
+		if (attackAngle <= 270.0f)
+		{
+			float x = (a_enemy->GetOriginalPosition().x + (a_enemy->GetAttackRadius() * cos(a_enemy->GetAttackAngle()) / a_enemy->GetAttackRadius()));
+			float y = (a_enemy->GetOriginalPosition().y + (a_enemy->GetAttackRadius() * sin(a_enemy->GetAttackAngle()) / a_enemy->GetAttackRadius()));
+			attackAngle += .01;
+
+			a_enemy->SetX(x);
+			a_enemy->SetY(y);
+		}
+		else
+		{
+			a_enemy->isAttacking = false;
+			attackAngle = 90.0f;
+
+		}
+	}
+
 	/*
 	this is code to get x and y for circle!!!
 	float x, y;
-		if (angle <= 360)
-		{
+	if (angle <= 360)
+	{
 	x = xPos + (radius * cos(angle * 180 / PI));
 	y = yPos + (radius * sin(angle * 180 / PI));
 	angle += .0001f;
@@ -106,24 +143,24 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 	cout << "xpos: " << x << endl;
 	cout << "ypos: " << y << endl;
 	//system("pause");
-}
-		else
-		{
-			angle = 0.0f;
-			x = 0;
-			y = 0;
-		}
+	}
+	else
+	{
+	angle = 0.0f;
+	x = 0;
+	y = 0;
+	}
 
-		MoveSprite(myTextureHandle, x, y);
-	
+	MoveSprite(myTextureHandle, x, y);
+
 	*/
 
 	//enemies attack logic
 	/*
 	enemies will attack from left / right most column depending on placement of group in relation to screen center (if too
-	far to side, can't circle out) and after a certain time since last attack has elapsed. once column is selected, the top 
-	most enemy will circle out (clockwise if right side/ counter-clockwise if left)	and once y drops below lowest column the 
-	enemy selects an x on the opposite side of the player and then moves diagonally	across dropping bombs on regular time.  
+	far to side, can't circle out) and after a certain time since last attack has elapsed. once column is selected, the top
+	most enemy will circle out (clockwise if right side/ counter-clockwise if left)	and once y drops below lowest column the
+	enemy selects an x on the opposite side of the player and then moves diagonally	across dropping bombs on regular time.
 	If not hit, the enemy returns to screen at the same x and returns to column
 
 	want to implement if time:
@@ -134,35 +171,35 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 	Enemy* highestX = nullptr;
 	for (auto object : gameObjects)
 	{
-		if (dynamic_cast<Enemy*>(object) != 0)
-		{
-			Enemy* enemy = dynamic_cast<Enemy*>(object);
-			if (lowestX == nullptr)
-			{
-				lowestX = enemy;
-			}
-			else if (highestX == nullptr)
-			{
-				highestX = enemy;
-			}
-			else
-			{
-				if (enemy->GetX() < lowestX->GetX())
-				{
-					lowestX = enemy;
-				}
-				if (enemy->GetX() > highestX->GetX())
-				{
-					highestX = enemy;
-				}
-			}
-		}
+	if (dynamic_cast<Enemy*>(object) != 0)
+	{
+	Enemy* enemy = dynamic_cast<Enemy*>(object);
+	if (lowestX == nullptr)
+	{
+	lowestX = enemy;
+	}
+	else if (highestX == nullptr)
+	{
+	highestX = enemy;
+	}
+	else
+	{
+	if (enemy->GetX() < lowestX->GetX())
+	{
+	lowestX = enemy;
+	}
+	if (enemy->GetX() > highestX->GetX())
+	{
+	highestX = enemy;
+	}
+	}
+	}
 	}*/
-//#ifdef _DEBUG
-//	std::cout << "low: " << lowestX->GetX() << std::endl;
-//	std::cout << "high: " << highestX->GetX() << std::endl;
-//	system("pause");
-//#endif
+	//#ifdef _DEBUG
+	//	std::cout << "low: " << lowestX->GetX() << std::endl;
+	//	std::cout << "high: " << highestX->GetX() << std::endl;
+	//	system("pause");
+	//#endif
 
 
 
@@ -242,7 +279,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		{
 			EnemyLogic(dynamic_cast<Enemy*>(object), a_timestep);
 		}
-		
+
 	}
 	////escape key
 	//if (IsKeyDown(256))

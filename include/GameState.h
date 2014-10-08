@@ -33,7 +33,8 @@ private:
 	bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
 
 	std::vector<Entity*> gameObjects;
-	float attackTimer = 2.0f;
+	float attackTimer = 50.0f;
+	float attackAngle = 90.0f;
 
 	//Enemy enemies[NUM_ENEMYS];
 

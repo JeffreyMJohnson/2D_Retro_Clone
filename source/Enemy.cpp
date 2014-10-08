@@ -11,9 +11,10 @@ Enemy::Enemy()
 	direction = 1;
 	activeEnemyCount++;
 	isAttacking = false;
-	attackStartPos.x = 0;
-	attackStartPos.y = 0;
-	attackAngle = 1;
+	originalPosition.x = 0;
+	originalPosition.y = 0;
+	attackAngle = 90.0f;
+	attackRadius = 5.0f;
 }
 
 void Enemy::Update(float a_delta)
@@ -179,6 +180,37 @@ void Enemy::SetIsActive(bool a_isActive)
 bool Enemy::GetIsActive()
 {
 	return isActive;
+}
+
+void Enemy::SetAttackAngle(float a_angle)
+{
+	attackAngle = a_angle;
+}
+
+float Enemy::GetAttackAngle()
+{
+	return attackAngle;
+}
+
+void Enemy::SetAttackRadius(float a_radius)
+{
+	attackRadius = a_radius;
+}
+
+float Enemy::GetAttackRadius()
+{
+	return attackRadius;
+}
+
+void Enemy::SetOriginalPos(Point2d a_point)
+{
+	originalPosition = a_point;
+}
+
+Point2d Enemy::GetOriginalPosition()
+{
+	return originalPosition;
+
 }
 
 

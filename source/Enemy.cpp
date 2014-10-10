@@ -13,17 +13,24 @@ Enemy::Enemy()
 	isAttacking = false;
 	originalPosition.x = 0;
 	originalPosition.y = 0;
-	attackAngle = 90.0f;
-	attackRadius = 5.0f;
+	//in radians so convert;
+	attackAngle = DegreeToRadians(90.0f);
+	attackRadius = 50.0f;
+	attackState = MOVE;
+	attackExitPoint = Point2d{ 0, 0 };
+	attackExitChosen = false;
+	attackSlope = 0.0f;
+	attackYIntercept = 0.0f;
+
 }
 
 void Enemy::Update(float a_delta)
 {
 
 	//all fucked up!!
-	if (isActive)
+	if (isActive && !isAttacking)
 	{
-		x += speed * direction * a_delta;
+		position.x += speed * direction * a_delta;
 		////x += speed * direction * a_delta;
 		//if (!isAttacking)
 		//{
@@ -60,21 +67,27 @@ void Enemy::Attack(float timeDelta)
 	//initalize data before starting
 	/*if (!isAttacking)
 	{
-		attackStartPos.x = x;
-		attackStartPos.y = y;
+	attackStartPos.x = x;
+	attackStartPos.y = y;
 	}
 	else
 	{
-		while (y - attackStartPos.y < 100)
-		{
-			y += speed * timeDelta;
-		}
+	while (y - attackStartPos.y < 100)
+	{
+	y += speed * timeDelta;
+	}
 	}*/
 
 
 
 
 }
+
+//float Enemy::GetSlopeOfLine(Point2d point1, Point2d point2)
+//{
+//	return (point1.y - point2.y) / (point1.x - point2.x);
+//
+//}
 
 void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
 {
@@ -96,7 +109,7 @@ void Enemy::Draw()
 {
 	if (isActive)
 	{
-		MoveSprite(spriteID, x, y);
+		MoveSprite(spriteID, position.x, position.y);
 		DrawSprite(spriteID);
 	}
 
@@ -115,8 +128,8 @@ void Enemy::CheckCollisions()
 	if (IsCollidedLeftWall() || IsCollidedRightWall())
 	{
 		speed *= -1;
-		y -= height / 2;
-		MoveSprite(spriteID, x, y);
+		position.y -= height / 2;
+		MoveSprite(spriteID, position.x, position.y);
 	}
 }
 
@@ -213,6 +226,26 @@ Point2d Enemy::GetOriginalPosition()
 
 }
 
+void Enemy::SetAttackState(attackStates a_state)
+{
+	attackState = a_state;
+}
+
+attackStates Enemy::GetAttackState()
+{
+	return attackState;
+}
+
+void Enemy::SetAttackExitPoint(Point2d a_point)
+{
+	attackExitPoint = a_point;
+}
+
+Point2d Enemy::GetAttackExitPoint()
+{
+	return attackExitPoint; 
+}
+
 
 Enemy::~Enemy()
 {
@@ -226,9 +259,9 @@ check if collided with right extreme (wall) and return true, otherwise return fa
 */
 bool Enemy::IsCollidedRightWall()
 {
-	if (x >= rightMovementExtreme)
+	if (position.x >= rightMovementExtreme)
 	{
-		x = rightMovementExtreme;
+		position.x = rightMovementExtreme;
 		return true;
 	}
 	return false;
@@ -239,10 +272,20 @@ check if collided with left extreme (wall) and return true, otherwise return fal
 */
 bool Enemy::IsCollidedLeftWall()
 {
-	if (x <= leftMovementExtreme)
+	if (position.x <= leftMovementExtreme)
 	{
-		x = leftMovementExtreme;
+		position.x = leftMovementExtreme;
 		return true;
 	}
 	return false;
+}
+
+float Enemy::DegreeToRadians(float angleInDegrees)
+{
+	return angleInDegrees * (PI / 180);
+}
+
+float Enemy::RadiansToDegrees(float angleInRadians)
+{
+	return angleInRadians * (180 / PI);
 }

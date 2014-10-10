@@ -34,7 +34,8 @@ private:
 
 	std::vector<Entity*> gameObjects;
 	float attackTimer = 50.0f;
-	float attackAngle = 90.0f;
+
+	//float attackAngle = 90.0f;
 
 	//Enemy enemies[NUM_ENEMYS];
 

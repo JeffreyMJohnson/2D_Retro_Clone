@@ -5,8 +5,7 @@ Player::Player()
 	width = 64;
 	height = 32;
 	//start position
-	x = 0;
-	y = 0;
+	SetPosition(0, 0);
 
 	//currentReloadBulletTime = 0.0f;
 	//maxBulletReloadTime = .25f;
@@ -31,19 +30,19 @@ void Player::Update(float a_delta)
 {
 	if (IsKeyDown(moveLeftKey))
 	{
-		x -= a_delta * speed;
-		if (x < (leftMovementExtreme + width * 0.5f))
+		position.x -= a_delta * speed;
+		if (position.x < (leftMovementExtreme + width * 0.5f))
 		{
-			x = (leftMovementExtreme + width * 0.5f);
+			position.x = (leftMovementExtreme + width * 0.5f);
 		}
 	}
 
 	if (IsKeyDown(moveRightKey))
 	{
-		x += a_delta * speed;
-		if (x >(rightMovementExtreme - width * 0.5f))
+		position.x += a_delta * speed;
+		if (position.x >(rightMovementExtreme - width * 0.5f))
 		{
-			x = (rightMovementExtreme - width * 0.5f);
+			position.x = (rightMovementExtreme - width * 0.5f);
 		}
 	}
 
@@ -51,7 +50,7 @@ void Player::Update(float a_delta)
 
 void Player::Draw()
 {
-	MoveSprite(spriteID, x, y);
+	MoveSprite(spriteID, position.x, position.y);
 	DrawSprite(spriteID);
 }
 

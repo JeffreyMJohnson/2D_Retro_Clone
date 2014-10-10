@@ -1,12 +1,22 @@
 #pragma once
 #ifndef _ENTITY_H_
+
+struct Point2d
+{
+	float x, y;
+};
+
 class Entity
 {
 public:
 	Entity();
 
 	void SetSize(float a_width, float a_height);
+	
 	void SetPosition(float a_x, float a_y);
+	void SetX(float x);
+	void SetY(float y);
+	Point2d GetPosition();
 
 	virtual void Update(float a_delta) = 0;
 	virtual void Draw() = 0;
@@ -20,11 +30,7 @@ public:
 	void SetHeight(float a_height);
 	float GetHeight();
 
-	void SetX(float a_x);
-	float GetX();
-
-	void SetY(float a_y);
-	float GetY();
+	
 
 	~Entity();
 
@@ -32,7 +38,6 @@ protected:
 	unsigned int spriteID;
 	float width;
 	float height;
-	float x;
-	float y;
+	Point2d position;
 };
 #endif // !_ENTITY_H_

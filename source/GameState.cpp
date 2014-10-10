@@ -2,6 +2,7 @@
 #include <iostream>
 
 
+
 extern const int screenWidth;
 extern const int screenHeight;
 
@@ -41,14 +42,13 @@ void GameState::Initialize()
 	//player->SetShootKey(32); //space key
 	player->SetMovementExtremes(0, screenWidth);
 	player->SetSpriteId(CreateSprite("./images/cannon.png", player->GetWidth(), player->GetHeight(), true));
-	player->SetX(screenWidth * 0.5f);
-	player->SetY(50.0f);
+	player->SetPosition(screenWidth * 0.5f, 50.0f);
 	player->SetSpeed(10.0f);
 
 	////add player to dynamic array
 	gameObjects.push_back(player);
 
-	MoveSprite(player->GetSpriteID(), player->GetX(), player->GetY());
+	MoveSprite(player->GetSpriteID(), player->GetPosition().x, player->GetPosition().y);
 
 	//bulletTexture = CreateSprite("./images/player_shot.png", 3, 20, true);
 
@@ -77,83 +77,150 @@ void GameState::Destroy()
 	//DestroySprite(bulletTexture);
 }
 
+float GetSlopeOfLine(Point2d point1, Point2d point2)
+{
+	return (point1.y - point2.y) / (point1.x - point2.x);
+
+}
+
 void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 {
+	bool isAttacking = a_enemy->isAttacking;
 
 
 	//enemies moving left and right logic
-	if (a_enemy->GetX() > screenWidth * 0.95f)
+	if (a_enemy->GetPosition().x > screenWidth * 0.95f)
 	{
 		a_enemy->SetX(screenWidth * 0.95f);
 		ReverseEnemies();
-		//break;
 	}
-	else if (a_enemy->GetX() < screenWidth * 0.05f)
+	else if (a_enemy->GetPosition().x < screenWidth * 0.05f)
 	{
 		a_enemy->SetX(screenWidth * 0.05f);
 		ReverseEnemies();
 	}
 
-	if (attackTimer >= 0)
+	//only use timer if not attacking
+	if (!isAttacking && attackTimer > 0.0f)
 	{
 		attackTimer -= timeDelta;
 	}
-	else
+	else if (!isAttacking)
 	{
 		attackTimer = 50.0f;
 		a_enemy->isAttacking = true;
 
 	}
-	if (a_enemy->isAttacking)
+
+	//this should be moved to enemy class use function pointers for context update
+	if (isAttacking)
 	{
-		if (attackAngle == 90.0f)
-		{
-			Point2d originalPos;
-			originalPos.x = a_enemy->GetX();
-			originalPos.y = a_enemy->GetY();
-			a_enemy->SetOriginalPos(originalPos);
-		}
+		float origX = a_enemy->GetOriginalPosition().x;
+		float origY = a_enemy->GetOriginalPosition().y;
+		float b = 0;
+		float m = 0;
 
-		if (attackAngle <= 270.0f)
+		switch (a_enemy->GetAttackState())
 		{
-			float x = (a_enemy->GetOriginalPosition().x + (a_enemy->GetAttackRadius() * cos(a_enemy->GetAttackAngle()) / a_enemy->GetAttackRadius()));
-			float y = (a_enemy->GetOriginalPosition().y + (a_enemy->GetAttackRadius() * sin(a_enemy->GetAttackAngle()) / a_enemy->GetAttackRadius()));
-			attackAngle += .01;
+		case MOVE:
+			//check if originalPosition still initialized state
+			if (origX == 0 && origY == 0)
+			{
+				Point2d originalPos;
+				originalPos.x = a_enemy->GetPosition().x;
+				originalPos.y = a_enemy->GetPosition().y;
+				a_enemy->SetOriginalPos(originalPos);
+				//origX = a_enemy->GetOriginalPosition().x;
+				//origY = a_enemy->GetOriginalPosition().y;
+			}
+			//move enemy distance of y = attackRadius + originalPosition.y
+			if (a_enemy->GetPosition().y < (a_enemy->GetOriginalPosition().y + a_enemy->GetAttackRadius()))
+			{
+				a_enemy->SetY(a_enemy->GetPosition().y + a_enemy->GetSpeed() * timeDelta);
+			}
+			else
+			{
+				a_enemy->SetAttackState(CIRCLE);
+			}
+			break;
+		case CIRCLE:
+			//attackAngle is in radians convert to be in degrees
+			if (a_enemy->GetAttackAngle() <= a_enemy->DegreeToRadians(270.0f))
+			{
+				float x = (a_enemy->GetOriginalPosition().x + (a_enemy->GetAttackRadius() * cos(a_enemy->GetAttackAngle())));
+				float y = (a_enemy->GetOriginalPosition().y + (a_enemy->GetAttackRadius() * sin(a_enemy->GetAttackAngle())));
+				float cosA = cos(a_enemy->GetAttackAngle());
+				float sinA = sin(a_enemy->GetAttackAngle());
+				float angleR = a_enemy->GetAttackAngle();
+				float angleD = a_enemy->RadiansToDegrees(a_enemy->GetAttackAngle());
+				a_enemy->SetAttackAngle(a_enemy->GetAttackAngle() + a_enemy->DegreeToRadians(.1));
 
-			a_enemy->SetX(x);
-			a_enemy->SetY(y);
-		}
-		else
-		{
-			a_enemy->isAttacking = false;
-			attackAngle = 90.0f;
+				a_enemy->SetPosition(x, y);
+			}
+			else
+			{
+				a_enemy->SetAttackState(ATTACK);
+			}
+			break;
+		case ATTACK:
 
+			//get player handle
+			Player* player;
+			for (auto object : gameObjects)
+			{
+				if (dynamic_cast<Player*>(object))
+				{
+					player = dynamic_cast<Player*>(object);
+					break;
+				}
+			}
+			//pick point to fly to 
+			//left or right of player  if enemy on player left will fly to right and vice versa
+			if (!a_enemy->attackExitChosen && a_enemy->GetPosition().x < player->GetPosition().x)
+			{
+				//pick to the right of the player 
+				Point2d exit{ 0, 0 };
+				exit.x = player->GetPosition().x + 100.0f;
+				a_enemy->SetAttackExitPoint(exit);
+				a_enemy->attackExitChosen = true;
+			}
+			else if (!a_enemy->attackExitChosen) //enemy to right or equal of player so go left
+			{
+				Point2d exit{ 0, 0 };
+				exit.x = player->GetPosition().x - 100.0f;
+				a_enemy->SetAttackExitPoint(exit);
+				a_enemy->attackExitChosen = true;
+			}
+
+			//TODO: get this refactored so only call once per attack sequence
+			//slope formula - m = (y1 -y2) / (x1 - x2)
+			m = GetSlopeOfLine(a_enemy->GetPosition(), a_enemy->GetAttackExitPoint());
+
+			//TODO: get this refactored so only call once per attack sequence
+			//point-slope formula - y - y1 = m * (x - x1) choose any point on line as (x1, y1)
+			//b = y - m * x
+			//y = m * x + b
+			b = a_enemy->GetPosition().y - (m * a_enemy->GetPosition().x);
+
+			if (a_enemy->GetPosition().y > a_enemy->GetAttackExitPoint().y)
+			{
+				float x = a_enemy->GetPosition().x + a_enemy->GetSpeed() * timeDelta;
+				float y = (m * x) + b;
+				a_enemy->SetPosition(x, y);
+			}
+			else
+			{
+				a_enemy->attackExitChosen = false;
+				a_enemy->SetAttackState(RETURN);
+			}
+
+			//TODO: turn bool attackExitIsChosen to false before leaving this state
+			break;
+		case RETURN:
+			std::cout << "foo";
+			break;
 		}
 	}
-
-	/*
-	this is code to get x and y for circle!!!
-	float x, y;
-	if (angle <= 360)
-	{
-	x = xPos + (radius * cos(angle * 180 / PI));
-	y = yPos + (radius * sin(angle * 180 / PI));
-	angle += .0001f;
-
-	cout << "xpos: " << x << endl;
-	cout << "ypos: " << y << endl;
-	//system("pause");
-	}
-	else
-	{
-	angle = 0.0f;
-	x = 0;
-	y = 0;
-	}
-
-	MoveSprite(myTextureHandle, x, y);
-
-	*/
 
 	//enemies attack logic
 	/*
@@ -184,11 +251,11 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 	}
 	else
 	{
-	if (enemy->GetX() < lowestX->GetX())
+	if (enemy->GetPosition().x < lowestX->GetPosition().x)
 	{
 	lowestX = enemy;
 	}
-	if (enemy->GetX() > highestX->GetX())
+	if (enemy->GetPosition().x > highestX->GetPosition().x)
 	{
 	highestX = enemy;
 	}
@@ -196,8 +263,8 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 	}
 	}*/
 	//#ifdef _DEBUG
-	//	std::cout << "low: " << lowestX->GetX() << std::endl;
-	//	std::cout << "high: " << highestX->GetX() << std::endl;
+	//	std::cout << "low: " << lowestX->GetPosition().x << std::endl;
+	//	std::cout << "high: " << highestX->GetPosition().x << std::endl;
 	//	system("pause");
 	//#endif
 
@@ -233,7 +300,7 @@ void GameState::ReverseEnemies()
 //			Enemy* enemyShip = dynamic_cast<Enemy*>(enemy);
 //			for (int i = 0; i < MAX_BULLETS; i++)
 //			{
-//				if (CheckCollision(a_player->bullets[i].x, a_player->bullets[i].y, enemyShip->GetX(), enemyShip->GetY(), 30.0f) &&
+//				if (CheckCollision(a_player->bullets[i].x, a_player->bullets[i].y, enemyShip->GetPosition().x, enemyShip->GetPosition().y, 30.0f) &&
 //					enemyShip->GetIsActive() &&
 //					a_player->bullets[i].isActive)
 //				{
@@ -249,13 +316,13 @@ void GameState::ReverseEnemies()
 //
 //void GameState::EnemyLogic(Enemy* a_enemy, bool& lowerAliens)
 //{
-//	if (a_enemy->GetX() > screenWidth * 0.9f && !lowerAliens)
+//	if (a_enemy->GetPosition().x > screenWidth * 0.9f && !lowerAliens)
 //	{
 //		direction = -1;
 //		lowerAliens = true;
 //		//break;
 //	}
-//	else if (a_enemy->GetX() < screenWidth * 0.1f && !lowerAliens)
+//	else if (a_enemy->GetPosition().x < screenWidth * 0.1f && !lowerAliens)
 //	{
 //		direction = 1;
 //		lowerAliens = true;
@@ -346,14 +413,14 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	{
 	Enemy* enemy = dynamic_cast<Enemy*>(object);
 
-	if (enemy->GetY() <= (0.05f * screenHeight))
+	if (enemy->GetPosition().y <= (0.05f * screenHeight))
 	{
 	gameOver = true;
 	gameOverTimer = 2;
 	return;
 	}
 
-	enemy->SetY(enemy->GetY() - (0.05f * screenHeight));
+	enemy->SetY(enemy->GetPosition().y - (0.05f * screenHeight));
 	}
 	}
 	}*/

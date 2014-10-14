@@ -3,7 +3,7 @@
 #ifndef _PLAYER_H_
 #define  _PLAYER_H_
 #include "AIE.h"
-//#include "Bullet.h"
+#include "Bullet.h"
 #include "Entity.h"
 #include <iostream>
 
@@ -98,8 +98,11 @@ private:
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 
-	float currentReloadBulletTime;
-	float maxBulletReloadTime;
+
+	//offset for bullet position in relation to player
+	float bulletYOffset;
+	/*float currentReloadBulletTime;
+	float maxBulletReloadTime;*/
 	
 
 };

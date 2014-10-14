@@ -7,6 +7,7 @@ Player::Player()
 	//start position
 	SetPosition(0, 0);
 
+	shootKey = 32;//space key
 	//currentReloadBulletTime = 0.0f;
 	//maxBulletReloadTime = .25f;
 
@@ -45,6 +46,10 @@ void Player::Update(float a_delta)
 			position.x = (rightMovementExtreme - width * 0.5f);
 		}
 	}
+
+	
+
+	
 
 }
 

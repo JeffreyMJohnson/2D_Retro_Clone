@@ -5,6 +5,7 @@
 #include "StateMachine.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Bullet.h"
 #include <vector>
 #include <string>
 
@@ -38,6 +39,10 @@ private:
 	float attackTimer;
 
 	std::vector<Entity*> gameObjects;
+
+	Bullet* bullet;
+	//offset for bullet position in relation to player
+	float bulletYOffset;
 
 	//float attackAngle = 90.0f;
 

@@ -31,6 +31,7 @@ GameState::GameState()
 
 GameState::~GameState()
 {
+	delete bullet;
 }
 
 void GameState::Initialize()
@@ -39,18 +40,28 @@ void GameState::Initialize()
 
 	Player* player = new Player();
 
-	player->SetSize(64.0f, 32.0f);
+	player->SetSize(45.0f, 51.0f);
 	player->SetMovementKeys('A', 'D');
 	//player->SetShootKey(32); //space key
 	player->SetMovementExtremes(0, screenWidth);
-	player->SetSpriteId(CreateSprite("./images/cannon.png", player->GetWidth(), player->GetHeight(), true));
-	player->SetPosition(screenWidth * 0.5f, 50.0f);
+	player->SetSpriteId(CreateSprite("./images/galaxian.png", player->GetWidth(), player->GetHeight(), true));
+	player->SetPosition(screenWidth * 0.5f, 100.0f);
 	player->SetSpeed(10.0f);
 
 	////add player to dynamic array
 	gameObjects.push_back(player);
 
 	MoveSprite(player->GetSpriteID(), player->GetPosition().x, player->GetPosition().y);
+
+
+	bullet = new Bullet();
+	bullet->height = 15.0f;
+	bullet->width = 4.0f;
+	bulletYOffset = bullet->height *.5f + bullet->height;
+	bullet->x = player->GetPosition().x;
+	bullet->y = player->GetPosition().y + bulletYOffset;
+	bullet->velocityY = 100.0f;
+	bullet->textureId = CreateSprite("./images/bullet.png", bullet->width, bullet->height, true);
 
 	//bulletTexture = CreateSprite("./images/player_shot.png", 3, 20, true);
 
@@ -107,6 +118,12 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 		a_enemy->SetX(screenWidth * 0.05f);
 
 		ReverseEnemies();
+	}
+
+	if (a_enemy->GetIsActive() && bullet->isCollided(a_enemy))
+	{
+		a_enemy->SetIsActive(false);
+		bullet->isActive = false;
 	}
 
 
@@ -388,7 +405,30 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 			EnemyLogic(dynamic_cast<Enemy*>(object), a_timestep);
 		}
 
+		if (dynamic_cast<Player*>(object) != 0)
+		{
+			Player* player = dynamic_cast<Player*>(object);
+			if (IsKeyDown(player->shootKey) && !bullet->isActive)
+			{
+				bullet->isActive = true;
+			}
+
+			if (bullet->isActive)
+			{
+				bullet->Update(a_timestep);
+			}
+			else
+			{
+				bullet->x = player->GetPosition().x;
+				bullet->y = player->GetPosition().y + bulletYOffset;
+			}
+		}
+
 	}
+
+
+	
+
 	////escape key
 	//if (IsKeyDown(256))
 	//{
@@ -475,6 +515,8 @@ void GameState::Draw()
 		object->Draw();
 	}
 
+	bullet->Draw();
+
 	//DrawLine(0, lineYPos, screenWidth, lineYPos, SColour(0x00, 0xFF, 0x00, 0xFF));
 
 	//SetFont(invadersFont);
@@ -517,23 +559,23 @@ void GameState::CreateEnemies()
 		Enemy* enemy = new Enemy();
 
 		//enemy->SetSize(58, 26);
-		enemy->SetSize(64, 32);
+		enemy->SetSize(45.0f, 50.0f);
 		enemy->SetSpeed(1.0f);
 
-		enemy->SetSpriteId(CreateSprite("./images/invaders_1_00.png", enemy->GetWidth(), enemy->GetHeight(), true));
+		enemy->SetSpriteId(CreateSprite("./images/blue_enemy_1.png", enemy->GetWidth(), enemy->GetHeight(), true));
 
 		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
 		{
 			enemyX = screenWidth * 0.2f;
-			enemyY -= 0.04f * screenHeight;
+			enemyY -= enemy->GetHeight();
 		}
 
 		//initialize position
 		enemy->SetPosition(enemyX, enemyY);
 
 		//increment next enemy's x position
-		enemyX += 0.1f * screenWidth;
+		enemyX += enemy->GetWidth();
 
 		enemy->SetScoreValue(30);
 

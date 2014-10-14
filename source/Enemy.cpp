@@ -22,6 +22,9 @@ Enemy::Enemy()
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
 
+	//reset in GameState.cpp enemyLogic() function
+	//attackTimer = 5.0f;
+
 }
 
 void Enemy::Update(float a_delta)

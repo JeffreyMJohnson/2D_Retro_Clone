@@ -31,6 +31,7 @@ public:
 	static int activeEnemyCount;
 	bool isAttacking;
 	bool attackExitChosen;
+	//float attackTimer;
 
 	//these need to be hidden and have an easy way to increment the line
 	float attackSlope;

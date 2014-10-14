@@ -29,11 +29,15 @@ private:
 	//void PlayerLogic(Player* a_player, float a_delta);
 	void EnemyLogic(Enemy* a_enemy, float timeDelta);
 	void ReverseEnemies();
+	void ChooseAttackers();
+	//returns max and min y position values for all enemies
+	void GetEnemyColX(float& minX, float& maxX);
+
 
 	bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
+	float attackTimer;
 
 	std::vector<Entity*> gameObjects;
-	float attackTimer = 50.0f;
 
 	//float attackAngle = 90.0f;
 

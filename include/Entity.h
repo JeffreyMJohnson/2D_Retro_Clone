@@ -1,5 +1,6 @@
 #pragma once
 #ifndef _ENTITY_H_
+#include <math.h>
 
 struct Point2d
 {
@@ -30,7 +31,10 @@ public:
 	void SetHeight(float a_height);
 	float GetHeight();
 
-	
+	void SetCollisionDx(float dx);
+	float GetCollisionDx();
+
+	bool isCollided(Entity* other);
 
 	~Entity();
 
@@ -39,5 +43,6 @@ protected:
 	float width;
 	float height;
 	Point2d position;
+	float collisionDx;
 };
 #endif // !_ENTITY_H_

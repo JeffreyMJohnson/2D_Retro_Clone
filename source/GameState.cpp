@@ -95,207 +95,157 @@ void GameState::EnemyLogic(Enemy* a_enemy, float timeDelta)
 
 
 	//enemies moving left and right logic
-	if (a_enemy->GetPosition().x > screenWidth * 0.95f && !isAttacking)
+	/*if (a_enemy->GetPosition().x > screenWidth * 0.95f && !isAttacking)*/
+	if (a_enemy->GetPosition().x > screenWidth * 0.95f)
 	{
 		a_enemy->SetX(screenWidth * 0.95f);
 		ReverseEnemies();
 	}
-	else if (a_enemy->GetPosition().x < screenWidth * 0.05f && !isAttacking)
+	//else if (a_enemy->GetPosition().x < screenWidth * 0.05f && !isAttacking)
+	else if (a_enemy->GetPosition().x < screenWidth * 0.05f)
 	{
 		a_enemy->SetX(screenWidth * 0.05f);
+
 		ReverseEnemies();
 	}
 
 
 
 	//this should be moved to enemy class use function pointers for context update
-	if (isAttacking)
-	{
-		float origX = a_enemy->GetOriginalPosition().x;
-		float origY = a_enemy->GetOriginalPosition().y;
-		float b = 0;
-		float m = 0;
+	//if (isAttacking)
+	//{
+	//	float origX = a_enemy->GetOriginalPosition().x;
+	//	float origY = a_enemy->GetOriginalPosition().y;
+	//	float b = 0;
+	//	float m = 0;
 
-		switch (a_enemy->GetAttackState())
-		{
-		case MOVE:
-			//check if originalPosition still initialized state
-			if (origX == 0 && origY == 0)
-			{
-				Point2d originalPos;
-				originalPos.x = a_enemy->GetPosition().x;
-				originalPos.y = a_enemy->GetPosition().y;
-				a_enemy->SetOriginalPos(originalPos);
-				//origX = a_enemy->GetOriginalPosition().x;
-				//origY = a_enemy->GetOriginalPosition().y;
-			}
-			//move enemy distance of y = attackRadius + originalPosition.y
-			if (a_enemy->GetPosition().y < (a_enemy->GetOriginalPosition().y + a_enemy->GetAttackRadius()))
-			{
-				a_enemy->SetY(a_enemy->GetPosition().y + a_enemy->GetSpeed() * timeDelta);
-			}
-			else
-			{
-				a_enemy->SetAttackState(CIRCLE);
-			}
-			break;
-		case CIRCLE:
-			//attackAngle is in radians convert to be in degrees
-			if (a_enemy->GetAttackAngle() <= a_enemy->DegreeToRadians(270.0f))
-			{
-				float x = (a_enemy->GetOriginalPosition().x + (a_enemy->GetAttackRadius() * cos(a_enemy->GetAttackAngle())));
-				float y = (a_enemy->GetOriginalPosition().y + (a_enemy->GetAttackRadius() * sin(a_enemy->GetAttackAngle())));
-				float cosA = cos(a_enemy->GetAttackAngle());
-				float sinA = sin(a_enemy->GetAttackAngle());
-				float angleR = a_enemy->GetAttackAngle();
-				float angleD = a_enemy->RadiansToDegrees(a_enemy->GetAttackAngle());
-				a_enemy->SetAttackAngle(a_enemy->GetAttackAngle() + a_enemy->DegreeToRadians(.1));
+	//	switch (a_enemy->GetAttackState())
+	//	{
+	//	case MOVE:
+	//		//check if originalPosition still initialized state
+	//		if (origX == 0 && origY == 0)
+	//		{
+	//			Point2d originalPos;
+	//			originalPos.x = a_enemy->GetPosition().x;
+	//			originalPos.y = a_enemy->GetPosition().y;
+	//			a_enemy->SetOriginalPos(originalPos);
+	//			//origX = a_enemy->GetOriginalPosition().x;
+	//			//origY = a_enemy->GetOriginalPosition().y;
+	//		}
+	//		//move enemy distance of y = attackRadius + originalPosition.y
+	//		if (a_enemy->GetPosition().y < (a_enemy->GetOriginalPosition().y + a_enemy->GetAttackRadius()))
+	//		{
+	//			a_enemy->SetY(a_enemy->GetPosition().y + a_enemy->GetSpeed() * timeDelta);
+	//		}
+	//		else
+	//		{
+	//			a_enemy->SetAttackState(CIRCLE);
+	//		}
+	//		break;
+	//	case CIRCLE:
+	//		//attackAngle is in radians convert to be in degrees
+	//		if (a_enemy->GetAttackAngle() <= a_enemy->DegreeToRadians(270.0f))
+	//		{
+	//			float x = (a_enemy->GetOriginalPosition().x + (a_enemy->GetAttackRadius() * cos(a_enemy->GetAttackAngle())));
+	//			float y = (a_enemy->GetOriginalPosition().y + (a_enemy->GetAttackRadius() * sin(a_enemy->GetAttackAngle())));
+	//			float cosA = cos(a_enemy->GetAttackAngle());
+	//			float sinA = sin(a_enemy->GetAttackAngle());
+	//			float angleR = a_enemy->GetAttackAngle();
+	//			float angleD = a_enemy->RadiansToDegrees(a_enemy->GetAttackAngle());
+	//			a_enemy->SetAttackAngle(a_enemy->GetAttackAngle() + a_enemy->DegreeToRadians(.1));
 
-				a_enemy->SetPosition(x, y);
-			}
-			else
-			{
-				a_enemy->SetAttackAngle(a_enemy->DegreeToRadians(90.0f));
-				a_enemy->SetAttackState(ATTACK);
-			}
-			break;
-		case ATTACK:
+	//			a_enemy->SetPosition(x, y);
+	//		}
+	//		else
+	//		{
+	//			a_enemy->SetAttackAngle(a_enemy->DegreeToRadians(90.0f));
+	//			a_enemy->SetAttackState(ATTACK);
+	//		}
+	//		break;
+	//	case ATTACK:
 
-			//get player handle
-			Player* player;
-			for (auto object : gameObjects)
-			{
-				if (dynamic_cast<Player*>(object))
-				{
-					player = dynamic_cast<Player*>(object);
-					break;
-				}
-			}
-			//pick point to fly to 
-			//left or right of player  if enemy on player left will fly to right and vice versa
-			if (!a_enemy->attackExitChosen && a_enemy->GetPosition().x < player->GetPosition().x)
-			{
-				//pick to the right of the player 
-				Point2d exit{ 0, 0 };
-				exit.x = player->GetPosition().x + 100.0f;
-				a_enemy->SetAttackExitPoint(exit);
-				a_enemy->attackExitChosen = true;
-			}
-			else if (!a_enemy->attackExitChosen) //enemy to right or equal of player so go left
-			{
-				Point2d exit{ 0, 0 };
-				exit.x = player->GetPosition().x - 100.0f;
-				a_enemy->SetAttackExitPoint(exit);
-				a_enemy->attackExitChosen = true;
-			}
+	//		//get player handle
+	//		Player* player;
+	//		for (auto object : gameObjects)
+	//		{
+	//			if (dynamic_cast<Player*>(object))
+	//			{
+	//				player = dynamic_cast<Player*>(object);
+	//				break;
+	//			}
+	//		}
+	//		//pick point to fly to 
+	//		//left or right of player  if enemy on player left will fly to right and vice versa
+	//		if (!a_enemy->attackExitChosen && a_enemy->GetPosition().x < player->GetPosition().x)
+	//		{
+	//			//pick to the right of the player 
+	//			Point2d exit{ 0, 0 };
+	//			exit.x = player->GetPosition().x + 100.0f;
+	//			a_enemy->SetAttackExitPoint(exit);
+	//			a_enemy->attackExitChosen = true;
+	//		}
+	//		else if (!a_enemy->attackExitChosen) //enemy to right or equal of player so go left
+	//		{
+	//			Point2d exit{ 0, 0 };
+	//			exit.x = player->GetPosition().x - 100.0f;
+	//			a_enemy->SetAttackExitPoint(exit);
+	//			a_enemy->attackExitChosen = true;
+	//		}
 
-			//TODO: get this refactored so only call once per attack sequence
-			//slope formula - m = (y1 -y2) / (x1 - x2)
-			m = GetSlopeOfLine(a_enemy->GetPosition(), a_enemy->GetAttackExitPoint());
+	//		//TODO: get this refactored so only call once per attack sequence
+	//		//slope formula - m = (y1 -y2) / (x1 - x2)
+	//		m = GetSlopeOfLine(a_enemy->GetPosition(), a_enemy->GetAttackExitPoint());
 
-			//TODO: get this refactored so only call once per attack sequence
-			//point-slope formula - y - y1 = m * (x - x1) choose any point on line as (x1, y1)
-			//b = y - m * x
-			//y = m * x + b
-			b = a_enemy->GetPosition().y - (m * a_enemy->GetPosition().x);
+	//		//TODO: get this refactored so only call once per attack sequence
+	//		//point-slope formula - y - y1 = m * (x - x1) choose any point on line as (x1, y1)
+	//		//b = y - m * x
+	//		//y = m * x + b
+	//		b = a_enemy->GetPosition().y - (m * a_enemy->GetPosition().x);
 
-			//increment x
-			if (a_enemy->GetPosition().y > a_enemy->GetAttackExitPoint().y && a_enemy->GetPosition().x < a_enemy->GetAttackExitPoint().x)
-			{
-				float x = a_enemy->GetPosition().x + a_enemy->GetSpeed() * timeDelta;
-				float y = (m * x) + b;
-				a_enemy->SetPosition(x, y);
-			}
-			//decrement x
-			else if (a_enemy->GetPosition().y > a_enemy->GetAttackExitPoint().y && a_enemy->GetPosition().x > a_enemy->GetAttackExitPoint().x)
-			{
-				float x = a_enemy->GetPosition().x - a_enemy->GetSpeed() * timeDelta;
-				float y = (m * x) + b;
-				a_enemy->SetPosition(x, y);
-			}
-			else
-			{
-				a_enemy->attackExitChosen = false;
-			
-				//set enemy x to original position and y to screenheight
-				a_enemy->SetPosition(a_enemy->GetOriginalPosition().x, screenHeight);
-				a_enemy->SetAttackState(RETURN);
-			}
+	//		//increment x
+	//		if (a_enemy->GetPosition().y > a_enemy->GetAttackExitPoint().y && a_enemy->GetPosition().x < a_enemy->GetAttackExitPoint().x)
+	//		{
+	//			float x = a_enemy->GetPosition().x + a_enemy->GetSpeed() * timeDelta;
+	//			float y = (m * x) + b;
+	//			a_enemy->SetPosition(x, y);
+	//		}
+	//		//decrement x
+	//		else if (a_enemy->GetPosition().y > a_enemy->GetAttackExitPoint().y && a_enemy->GetPosition().x > a_enemy->GetAttackExitPoint().x)
+	//		{
+	//			float x = a_enemy->GetPosition().x - a_enemy->GetSpeed() * timeDelta;
+	//			float y = (m * x) + b;
+	//			a_enemy->SetPosition(x, y);
+	//		}
+	//		else
+	//		{
+	//			a_enemy->attackExitChosen = false;
 
-			//TODO: turn bool attackExitIsChosen to false before leaving this state
-			break;
-		case RETURN:
-			//return to original position
-			//std::cout << "foo";
-			
-			if (a_enemy->GetPosition().y > a_enemy->GetOriginalPosition().y)
-			{
-				float y = a_enemy->GetPosition().y;
-				float returnY = a_enemy->GetOriginalPosition().y;
-				a_enemy->SetPosition(a_enemy->GetPosition().x, a_enemy->GetPosition().y - a_enemy->GetSpeed() * timeDelta);
-			}
-			else
-			{
-				a_enemy->isAttacking = false;
-				a_enemy->SetAttackState(MOVE);
-std::cout << "done";
-			}
-			
-			break;
-		}
-	}
+	//			//set enemy x to original position and y to screenheight
+	//			a_enemy->SetPosition(a_enemy->GetOriginalPosition().x, screenHeight);
+	//			a_enemy->SetAttackState(RETURN);
+	//		}
 
+	//		//TODO: turn bool attackExitIsChosen to false before leaving this state
+	//		break;
+	//	case RETURN:
+	//		//return to original position
+	//		//std::cout << "foo";
 
+	//		if (a_enemy->GetPosition().y > a_enemy->GetOriginalPosition().y)
+	//		{
+	//			float y = a_enemy->GetPosition().y;
+	//			float returnY = a_enemy->GetOriginalPosition().y;
+	//			a_enemy->SetPosition(a_enemy->GetPosition().x, a_enemy->GetPosition().y - a_enemy->GetSpeed() * timeDelta);
+	//		}
+	//		else
+	//		{
+	//			a_enemy->isAttacking = false;
+	//			a_enemy->SetAttackState(MOVE);
+	//			std::cout << "done";
+	//		}
 
-	//enemies attack logic
-	/*
-	enemies will attack from left / right most column depending on placement of group in relation to screen center (if too
-	far to side, can't circle out) and after a certain time since last attack has elapsed. once column is selected, the top
-	most enemy will circle out (clockwise if right side/ counter-clockwise if left)	and once y drops below lowest column the
-	enemy selects an x on the opposite side of the player and then moves diagonally	across dropping bombs on regular time.
-	If not hit, the enemy returns to screen at the same x and returns to column
-
-	want to implement if time:
-	enemy sprite rotating as circle is completed and points towards player position when firing.
-	*/
-	//which column? find enemy with lowest x and greatest x and which one of those is furthest from center
-	/*Enemy* lowestX = nullptr;
-	Enemy* highestX = nullptr;
-	for (auto object : gameObjects)
-	{
-	if (dynamic_cast<Enemy*>(object) != 0)
-	{
-	Enemy* enemy = dynamic_cast<Enemy*>(object);
-	if (lowestX == nullptr)
-	{
-	lowestX = enemy;
-	}
-	else if (highestX == nullptr)
-	{
-	highestX = enemy;
-	}
-	else
-	{
-	if (enemy->GetPosition().x < lowestX->GetPosition().x)
-	{
-	lowestX = enemy;
-	}
-	if (enemy->GetPosition().x > highestX->GetPosition().x)
-	{
-	highestX = enemy;
-	}
-	}
-	}
-	}*/
-	//#ifdef _DEBUG
-	//	std::cout << "low: " << lowestX->GetPosition().x << std::endl;
-	//	std::cout << "high: " << highestX->GetPosition().x << std::endl;
-	//	system("pause");
-	//#endif
-
-
-
-
+	//		break;
+	//	}
 }
 
 void GameState::ChooseAttackers()
@@ -417,18 +367,18 @@ void GameState::ReverseEnemies()
 
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
-	
+
 
 	//wait for attack mode
-	if (attackTimer > 0.0f)
-	{
-		attackTimer -= a_timestep;
-	}
-	else
-	{
-		attackTimer = 10.0f;
-		ChooseAttackers();
-	}
+	//if (attackTimer > 0.0f)
+	//{
+	//	attackTimer -= a_timestep;
+	//}
+	//else
+	//{
+	//	attackTimer = 10.0f;
+	//	ChooseAttackers();
+	//}
 
 	for (auto object : gameObjects)
 	{
@@ -559,7 +509,7 @@ void GameState::CreateEnemies()
 {
 	//first enemy's position
 	float enemyX = screenWidth * 0.2f;
-	float enemyY = screenHeight *0.9f;
+	float enemyY = screenHeight *0.75f;
 
 	for (int i = 0; i < NUM_ENEMYS; i++)
 	{
@@ -568,7 +518,7 @@ void GameState::CreateEnemies()
 
 		//enemy->SetSize(58, 26);
 		enemy->SetSize(64, 32);
-		enemy->SetSpeed(3.5f);
+		enemy->SetSpeed(1.0f);
 
 		enemy->SetSpriteId(CreateSprite("./images/invaders_1_00.png", enemy->GetWidth(), enemy->GetHeight(), true));
 

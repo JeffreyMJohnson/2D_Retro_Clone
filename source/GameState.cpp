@@ -8,16 +8,16 @@
 extern const int screenWidth;
 extern const int screenHeight;
 
+
+
 //extern const char* invadersFont;
-//extern const char* player1ScoreText;
+
 //extern const char* player2ScoreText;
-//extern const char* highScoreText;
 //extern const char* insertCoinsText;
 //extern const char* creditText;
 //
-//extern std::string scoreAsString;
 //extern char* player2Score;
-//extern char* highScore;
+
 //extern char* playerLives;
 //extern char* credit;
 //
@@ -26,6 +26,10 @@ extern const int screenHeight;
 
 GameState::GameState()
 {
+	player1ScoreText = "1UP";
+highScoreText = "HIGH SCORE";
+scoreAsString = "";
+
 }
 
 

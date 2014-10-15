@@ -44,6 +44,12 @@ private:
 	//offset for bullet position in relation to player
 	float bulletYOffset;
 
+	const char* player1ScoreText;
+	//extern const char* player2ScoreText;
+	const char* highScoreText;
+	std::string scoreAsString;
+
+
 	//float attackAngle = 90.0f;
 
 	//Enemy enemies[NUM_ENEMYS];

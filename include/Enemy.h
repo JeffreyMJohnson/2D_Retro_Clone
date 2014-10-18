@@ -18,6 +18,7 @@ extern const int NUM_ENEMYS;
 
 enum attackStates
 {
+	WAIT,
 	MOVE,
 	CIRCLE,
 	ATTACK,
@@ -30,12 +31,14 @@ public:
 
 	static int activeEnemyCount;
 	bool isAttacking;
+	bool isLeader;
 	bool attackExitChosen;
-	//float attackTimer;
+	float attackSpeed;
 
 	//these need to be hidden and have an easy way to increment the line
 	float attackSlope;
 	float attackYIntercept;
+	int attackDirection;
 
 	Enemy();
 
@@ -50,13 +53,13 @@ public:
 
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
-	
+
 	////move enemy 
 	//void Move(float a_speed, int a_direction, float a_delta);
 
 	void Attack(float timeDelta);
 
-	
+
 
 	void SetSpeedX(float a_speedX);
 	float GetSpeedX();
@@ -69,7 +72,7 @@ public:
 
 	void SetRightMoveExtreme(unsigned int a_leftExtreme);
 	unsigned int GetRightMoveExtreme();
-	
+
 	void SetScoreValue(int a_scoreValue);
 	int GetScoreValue();
 
@@ -80,7 +83,7 @@ public:
 	bool GetIsActive();
 
 	void SetOriginalPos(Point2d a_point);
-	Point2d GetOriginalPosition();
+	Point2d GetreturnPosition();
 
 	void SetAttackAngle(float a_angle);
 	float GetAttackAngle();
@@ -94,11 +97,12 @@ public:
 	void SetAttackState(attackStates a_state);
 	attackStates GetAttackState();
 
-	
+	void SetReturnPosition(Point2d point);
+	Point2d GetReturnPosition();
 
-	~Enemy();	
+	~Enemy();
 
-	
+
 
 private:
 	unsigned int leftMovementExtreme;
@@ -107,16 +111,17 @@ private:
 	bool isActive;
 	float speed;
 	int direction;
-	Point2d originalPosition;
+	Point2d returnPosition;
 	float attackAngle;
 	float attackRadius;
 	Point2d attackExitPoint;
 	attackStates attackState;
 
+
 	//float GetSlopeOfLine(Point2d point1, Point2d point2);
-	
-	
-	
+
+
+
 
 	/*
 	check all collisions and apply effects:

@@ -11,8 +11,9 @@ Enemy::Enemy()
 	direction = 1;
 	activeEnemyCount++;
 	isAttacking = false;
-	originalPosition.x = 0;
-	originalPosition.y = 0;
+	isLeader = false;
+	returnPosition.x = 0;
+	returnPosition.y = 0;
 	//in radians so convert;
 	attackAngle = DegreeToRadians(90.0f);
 	attackRadius = 50.0f;
@@ -21,6 +22,8 @@ Enemy::Enemy()
 	attackExitChosen = false;
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
+	attackDirection = 0;
+	attackSpeed = 10.0f;
 
 	//reset in GameState.cpp enemyLogic() function
 	//attackTimer = 5.0f;
@@ -31,7 +34,8 @@ void Enemy::Update(float a_delta)
 {
 
 	//all fucked up!!
-	if (isActive && !isAttacking)
+	/*if (isActive && !isAttacking)*/
+	if (isActive)
 	{
 		position.x += speed * direction * a_delta;
 		////x += speed * direction * a_delta;
@@ -63,10 +67,77 @@ void Enemy::Update(float a_delta)
 		//	}
 		//}
 	}
+	if (isAttacking)
+	{
+		returnPosition.x += speed * direction * a_delta;
+		//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
+		Attack(a_delta);
+	}
 }
 
+
+/*
+in order to go negative direction when the circle reaches 0 degrees it will reset to 360 and fail existing test.
+solution is an equality test for 270 degrees, but with float math will need to use epsilon - (fabs(result - expectedResult) > epsilon)
+*/
 void Enemy::Attack(float timeDelta)
 {
+	float epsilon = .01;
+	switch (attackState)
+	{
+	case WAIT:
+		std::cout << "waiting....\n";
+		break;
+	case MOVE:
+		if (position.y < returnPosition.y + attackRadius)
+		{
+			position.y += attackSpeed * timeDelta;
+		}
+		else
+		{
+			attackState = CIRCLE;
+		}
+		break;
+	case CIRCLE:
+		/*points gotten by using parametric circle equation - given the center point of a circle a,b and the diameter d
+		the points on the circumference given an angle from a previous point on circle theta:
+		x = a + d * cos(theta)
+		y = a + d * sin(theta)
+		*/
+		//attackAngle is in radians convert to be in degrees
+		//if (attackAngle <= DegreeToRadians(270.0f))
+		if (fabs((attackAngle - DegreeToRadians(270.0f))) > epsilon)
+		{
+			float x = (returnPosition.x + (attackRadius * cos(attackAngle)));
+			float y = (returnPosition.y + (attackRadius * sin(attackAngle)));
+			float cosA = cos(attackAngle);
+			float sinA = sin(attackAngle);
+			float angleR = attackAngle;
+			float angleD = RadiansToDegrees(attackAngle);
+			attackAngle = attackAngle + DegreeToRadians(.1) * attackDirection;
+			if (RadiansToDegrees(attackAngle) <= 0)
+			{
+				attackAngle = DegreeToRadians(360.0f);
+			}
+			//attackAngle = attackAngle * attackDirection + DegreeToRadians(attackSpeed * timeDelta);
+
+			SetPosition(x, y);
+		}
+		else
+		{
+			attackAngle = 90.0f;
+			attackState = ATTACK;
+		}
+		//		break;
+		break;
+	case ATTACK:
+		std::cout << "";
+		break;
+	case RETURN:
+		break;
+	}
+
+
 	//initalize data before starting
 	/*if (!isAttacking)
 	{
@@ -220,12 +291,12 @@ float Enemy::GetAttackRadius()
 
 void Enemy::SetOriginalPos(Point2d a_point)
 {
-	originalPosition = a_point;
+	returnPosition = a_point;
 }
 
-Point2d Enemy::GetOriginalPosition()
+Point2d Enemy::GetreturnPosition()
 {
-	return originalPosition;
+	return returnPosition;
 
 }
 
@@ -246,7 +317,16 @@ void Enemy::SetAttackExitPoint(Point2d a_point)
 
 Point2d Enemy::GetAttackExitPoint()
 {
-	return attackExitPoint; 
+	return attackExitPoint;
+}
+
+void Enemy::SetReturnPosition(Point2d point)
+{
+	returnPosition = point;
+}
+Point2d Enemy::GetReturnPosition()
+{
+	return returnPosition;
 }
 
 

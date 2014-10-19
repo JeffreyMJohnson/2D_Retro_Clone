@@ -109,11 +109,7 @@ void GameState::Destroy()
 	//DestroySprite(bulletTexture);
 }
 
-float GetSlopeOfLine(Point2d point1, Point2d point2)
-{
-	return (point1.y - point2.y) / (point1.x - point2.x);
 
-}
 
 void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 {
@@ -143,11 +139,71 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	//attack logic
 
 
+	//if (sendAttack && enemy->isAttacking && enemy->GetAttackState() == ATTACK && enemy->attackExitChosen == false)
+	//{
+	//		float origX = enemy->GetreturnPosition().x;
+	//		float origY = enemy->GetreturnPosition().y;
+	//		float b = 0;
+	//		float m = 0;
 
-	if (sendAttack && enemy->isAttacking)
-	{
+	//	//get a player handle
+	//	Player* player = dynamic_cast<Player*>(gameObjects[0]);
+	//	assert(player != 0);
 
-	}
+	//	//pick point to fly to 
+	//	//		//left or right of player  if enemy on player left will fly to right and vice versa
+	//	if (enemy->GetPosition().x < player->GetPosition().x)
+	//	{
+	//		//pick to the right of the player 
+	//		Point2d exit{ 0, 0 };
+	//		exit.x = player->GetPosition().x + 100.0f;
+	//		enemy->SetAttackExitPoint(exit);
+	//		enemy->attackExitChosen = true;
+	//	}
+	//	else if (!enemy->attackExitChosen) //enemy to right or equal of player so go left
+	//	{
+	//		Point2d exit{ 0, 0 };
+	//		exit.x = player->GetPosition().x - 100.0f;
+	//		enemy->SetAttackExitPoint(exit);
+	//		enemy->attackExitChosen = true;
+	//	}
+
+	//	//TODO: get this refactored so only call once per attack sequence
+	//	//slope formula - m = (y1 -y2) / (x1 - x2)
+	//	m = GetSlopeOfLine(enemy->GetPosition(), enemy->GetAttackExitPoint());
+
+	//	//TODO: get this refactored so only call once per attack sequence
+	//	//point-slope formula - y - y1 = m * (x - x1) choose any point on line as (x1, y1)
+	//	//b = y - m * x
+	//	//y = m * x + b
+	//	b = enemy->GetPosition().y - (m * enemy->GetPosition().x);
+
+	//	//increment x
+	//	if (enemy->GetPosition().y > enemy->GetAttackExitPoint().y && enemy->GetPosition().x < enemy->GetAttackExitPoint().x)
+	//	{
+	//		float x = enemy->GetPosition().x + enemy->GetSpeed() * timeDelta;
+	//		float y = (m * x) + b;
+	//		enemy->SetPosition(x, y);
+	//	}
+	//	//decrement x
+	//	else if (enemy->GetPosition().y > enemy->GetAttackExitPoint().y && enemy->GetPosition().x > enemy->GetAttackExitPoint().x)
+	//	{
+	//		float x = enemy->GetPosition().x - enemy->GetSpeed() * timeDelta;
+	//		float y = (m * x) + b;
+	//		enemy->SetPosition(x, y);
+	//	}
+	//	else
+	//	{
+	//		enemy->attackExitChosen = false;
+
+	//		//set enemy x to original position and y to screenheight
+	//		enemy->SetPosition(enemy->GetreturnPosition().x, screenHeight);
+	//		enemy->SetAttackState(RETURN);
+	//	}
+
+	//	//TODO: turn bool attackExitIsChosen to false before leaving this state
+	//	//break;
+	//}
 
 	//this should be moved to enemy class use function pointers for context update
 	//if (isAttacking)
@@ -744,6 +800,7 @@ void GameState::CreateEnemies()
 
 		enemy->SetScoreValue(30);
 
+		enemy->player = dynamic_cast<Player*>(gameObjects[0]);
 
 		gameObjects.push_back(enemy);
 	}

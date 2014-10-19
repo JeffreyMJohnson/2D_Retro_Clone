@@ -2,9 +2,11 @@
 
 #ifndef _PLAYER_H_
 #define  _PLAYER_H_
+
 #include "AIE.h"
-#include "Bullet.h"
+
 #include "Entity.h"
+#include "Bullet.h"
 #include <iostream>
 
 struct Score

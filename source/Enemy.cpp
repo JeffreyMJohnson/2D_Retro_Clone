@@ -23,7 +23,9 @@ Enemy::Enemy()
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
 	attackDirection = 0;
-	attackSpeed = 10.0f;
+	attackSpeed = 15.0f;
+
+	player = nullptr;
 
 	//reset in GameState.cpp enemyLogic() function
 	//attackTimer = 5.0f;
@@ -35,7 +37,7 @@ void Enemy::Update(float a_delta)
 
 	//all fucked up!!
 	/*if (isActive && !isAttacking)*/
-	if (isActive)
+	if (isActive && attackState != ATTACK)
 	{
 		position.x += speed * direction * a_delta;
 		////x += speed * direction * a_delta;
@@ -83,6 +85,7 @@ solution is an equality test for 270 degrees, but with float math will need to u
 void Enemy::Attack(float timeDelta)
 {
 	float epsilon = .01;
+
 	switch (attackState)
 	{
 	case WAIT:
@@ -114,7 +117,7 @@ void Enemy::Attack(float timeDelta)
 			float sinA = sin(attackAngle);
 			float angleR = attackAngle;
 			float angleD = RadiansToDegrees(attackAngle);
-			attackAngle = attackAngle + DegreeToRadians(.1) * attackDirection;
+			attackAngle = attackAngle + DegreeToRadians(.1) * attackDirection * attackSpeed;
 			if (RadiansToDegrees(attackAngle) <= 0)
 			{
 				attackAngle = DegreeToRadians(360.0f);
@@ -131,9 +134,112 @@ void Enemy::Attack(float timeDelta)
 		//		break;
 		break;
 	case ATTACK:
-		std::cout << "";
+		assert(player != nullptr && player != 0);
+
+
+		if (!attackExitChosen)
+		{
+			if (position.x < player->GetPosition().x)
+			{
+				//pick to right of player
+				attackDirection = 1;
+			}
+			else//enemy to right or equal of player so go left
+			{
+				attackDirection = -1;
+			}
+			Point2d exit{ 0, 0 };
+			exit.x = player->GetPosition().x + 100.0f * attackDirection;
+			attackExitPoint = exit;
+			attackExitChosen = true;
+
+			//slope formula -> m = (y1 -y2) / (x1 - x2)
+			float m = GetSlopeOfLine(position, attackExitPoint);
+			attackSlope = m;
+
+			//point-slope formula -> y - y1 = m * (x - x1) choose any point on line as (x1, y1)
+			//b = y - m * x
+			//y = m * x + b
+			float b = position.y - (m * position.x);
+			attackYIntercept = b;
+		}
+
+		//increment x
+		if (position.y > attackExitPoint.y && position.x < attackExitPoint.x)
+		{
+			float x = position.x + attackSpeed * timeDelta;
+			float y = (attackSlope * x) + attackYIntercept;
+			position = Point2d{ x, y };
+		}
+		//decrement x
+		else if (position.y > attackExitPoint.y && position.x > attackExitPoint.x)
+		{
+			float x = position.x - attackSpeed * timeDelta;
+			float y = (attackSlope * x) + attackYIntercept;
+			position = Point2d{ x, y };
+		}
+		else
+		{
+			attackExitChosen = false;
+
+			//set enemy x to original position and y to screenheight
+			position = Point2d{ returnPosition.x, screenHeight };
+			attackState = RETURN;
+		}
+
+		//if (!enemy->attackExitChosen && enemy->GetPosition().x < player->GetPosition().x)
+		//		{
+		//			//pick to the right of the player 
+		//			Point2d exit{ 0, 0 };
+		//			exit.x = player->GetPosition().x + 100.0f;
+		//			enemy->SetAttackExitPoint(exit);
+		//			enemy->attackExitChosen = true;
+		//		}
+		//		else if (!enemy->attackExitChosen) //enemy to right or equal of player so go left
+		//		{
+		//			Point2d exit{ 0, 0 };
+		//			exit.x = player->GetPosition().x - 100.0f;
+		//			enemy->SetAttackExitPoint(exit);
+		//			enemy->attackExitChosen = true;
+		//		}
+
+		//		//TODO: get this refactored so only call once per attack sequence
+		//		//slope formula - m = (y1 -y2) / (x1 - x2)
+		//		m = GetSlopeOfLine(enemy->GetPosition(), enemy->GetAttackExitPoint());
+
+		//		//TODO: get this refactored so only call once per attack sequence
+		//		//point-slope formula - y - y1 = m * (x - x1) choose any point on line as (x1, y1)
+		//		//b = y - m * x
+		//		//y = m * x + b
+		//		b = enemy->GetPosition().y - (m * enemy->GetPosition().x);
+
+		//		//increment x
+		//		if (enemy->GetPosition().y > enemy->GetAttackExitPoint().y && enemy->GetPosition().x < enemy->GetAttackExitPoint().x)
+		//		{
+		//			float x = enemy->GetPosition().x + enemy->GetSpeed() * timeDelta;
+		//			float y = (m * x) + b;
+		//			enemy->SetPosition(x, y);
+		//		}
+		//		//decrement x
+		//		else if (enemy->GetPosition().y > enemy->GetAttackExitPoint().y && enemy->GetPosition().x > enemy->GetAttackExitPoint().x)
+		//		{
+		//			float x = enemy->GetPosition().x - enemy->GetSpeed() * timeDelta;
+		//			float y = (m * x) + b;
+		//			enemy->SetPosition(x, y);
+		//		}
+		//		else
+		//		{
+		//			enemy->attackExitChosen = false;
+
+		//			//set enemy x to original position and y to screenheight
+		//			enemy->SetPosition(enemy->GetreturnPosition().x, screenHeight);
+		//			enemy->SetAttackState(RETURN);
+		//		}
+
+
 		break;
 	case RETURN:
+		std::cout << "";
 		break;
 	}
 
@@ -154,6 +260,12 @@ void Enemy::Attack(float timeDelta)
 
 
 
+
+}
+
+float Enemy::GetSlopeOfLine(Point2d point1, Point2d point2)
+{
+	return (point1.y - point2.y) / (point1.x - point2.x);
 
 }
 

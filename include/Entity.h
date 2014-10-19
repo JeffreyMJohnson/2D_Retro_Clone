@@ -1,5 +1,6 @@
 #pragma once
 #ifndef _ENTITY_H_
+#define _ENTITY_H_
 #include <math.h>
 
 struct Point2d

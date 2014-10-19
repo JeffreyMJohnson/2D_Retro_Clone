@@ -47,7 +47,7 @@ void Bullet::InitializeBullet(float a_x, float a_y, float a_velocityX, float a_v
 	isActive = true;
 }
 
-bool Bullet::isCollided(Enemy* enemy)
+bool Bullet::isCollided(Entity* enemy)
 {
 	float collisionDx = height * 0.5f;
 	enemy->SetCollisionDx(enemy->GetHeight() * 0.5f);

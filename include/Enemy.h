@@ -6,6 +6,8 @@
 
 #include "AIE.h"
 #include "Entity.h"
+#include "Player.h"
+#include <assert.h>
 
 #define PI 3.14159
 
@@ -34,6 +36,8 @@ public:
 	bool isLeader;
 	bool attackExitChosen;
 	float attackSpeed;
+
+	Player* player;
 
 	//these need to be hidden and have an easy way to increment the line
 	float attackSlope;
@@ -118,7 +122,7 @@ private:
 	attackStates attackState;
 
 
-	//float GetSlopeOfLine(Point2d point1, Point2d point2);
+	float GetSlopeOfLine(Point2d point1, Point2d point2);
 
 
 

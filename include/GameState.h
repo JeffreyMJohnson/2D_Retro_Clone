@@ -1,5 +1,7 @@
 #pragma once
 #ifndef _GAME_STATE_H_
+#define _GAME_STATE_H_
+
 #include "BaseState.h"
 #include "AIE.h"
 #include "StateMachine.h"

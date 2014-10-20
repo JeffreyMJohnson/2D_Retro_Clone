@@ -23,7 +23,7 @@ Enemy::Enemy()
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
 	attackDirection = 0;
-	attackSpeed = 15.0f;
+	attackSpeed = 5.0f;
 
 	player = nullptr;
 
@@ -35,39 +35,9 @@ Enemy::Enemy()
 void Enemy::Update(float a_delta)
 {
 
-	//all fucked up!!
-	/*if (isActive && !isAttacking)*/
 	if (isActive && attackState != ATTACK)
 	{
 		position.x += speed * direction * a_delta;
-		////x += speed * direction * a_delta;
-		//if (!isAttacking)
-		//{
-		//	attackStartPos.x = x;
-		//	attackStartPos.y = y;
-		//	isAttacking = true;
-		//}
-		//else
-		//{
-		//	if (y - attackStartPos.y < 50)
-		//	{
-		//		y += 10.0f * a_delta;
-		//	}
-		//	else
-		//	{
-		//		if (attackAngle < 50)
-		//		{
-		//			x += (50 * cos(attackAngle)) * a_delta;
-		//			attackAngle++;
-		//		}
-		//		else
-		//		{
-		//			isAttacking = false;
-		//			std::cout << "done\n";
-		//		}
-
-		//	}
-		//}
 	}
 	if (isAttacking)
 	{
@@ -113,11 +83,11 @@ void Enemy::Attack(float timeDelta)
 		{
 			float x = (returnPosition.x + (attackRadius * cos(attackAngle)));
 			float y = (returnPosition.y + (attackRadius * sin(attackAngle)));
-			float cosA = cos(attackAngle);
+			/*float cosA = cos(attackAngle);
 			float sinA = sin(attackAngle);
 			float angleR = attackAngle;
-			float angleD = RadiansToDegrees(attackAngle);
-			attackAngle = attackAngle + DegreeToRadians(.1) * attackDirection * attackSpeed;
+			float angleD = RadiansToDegrees(attackAngle);*/
+			attackAngle = attackAngle + DegreeToRadians(.05f) * attackDirection * attackSpeed;
 			if (RadiansToDegrees(attackAngle) <= 0)
 			{
 				attackAngle = DegreeToRadians(360.0f);
@@ -187,6 +157,9 @@ void Enemy::Attack(float timeDelta)
 			attackState = RETURN;
 		}
 
+
+
+
 		//if (!enemy->attackExitChosen && enemy->GetPosition().x < player->GetPosition().x)
 		//		{
 		//			//pick to the right of the player 
@@ -232,14 +205,28 @@ void Enemy::Attack(float timeDelta)
 		//			enemy->attackExitChosen = false;
 
 		//			//set enemy x to original position and y to screenheight
-		//			enemy->SetPosition(enemy->GetreturnPosition().x, screenHeight);
-		//			enemy->SetAttackState(RETURN);
+		//			enemy->SetPosition(enemy->GetreturnPosition
+
 		//		}
 
 
 		break;
 	case RETURN:
-		std::cout << "";
+		if (position.y > returnPosition.y)
+		{
+			float y = position.y;
+			float returnY = returnPosition.y;
+			position = Point2d{ position.x, position.y - attackSpeed * timeDelta };
+		}
+		else
+		{
+			isAttacking = false;
+			attackState = MOVE;
+			std::cout << "done";
+		}
+
+
+
 		break;
 	}
 

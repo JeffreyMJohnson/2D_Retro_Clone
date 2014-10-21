@@ -1,6 +1,6 @@
 #include "Enemy.h"
 #include <iostream>
-#include <math.h>
+
 
 int Enemy::activeEnemyCount = 0;
 
@@ -24,17 +24,19 @@ Enemy::Enemy()
 	attackYIntercept = 0.0f;
 	attackDirection = 0;
 	attackSpeed = 5.0f;
+	shootMaxTime = .5f;
+	shootTimer = shootMaxTime;
 
 	player = nullptr;
+
+	//LoadBullets();
 
 	//reset in GameState.cpp enemyLogic() function
 	//attackTimer = 5.0f;
 
 }
-
 void Enemy::Update(float a_delta)
 {
-
 	if (isActive && attackState != ATTACK)
 	{
 		position.x += speed * direction * a_delta;
@@ -44,9 +46,37 @@ void Enemy::Update(float a_delta)
 		returnPosition.x += speed * direction * a_delta;
 		//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
 		Attack(a_delta);
+
+		//if (isActive && attackState != ATTACK)
+		//{
+		//	position.x += speed * direction * a_delta;
+		//}
+		//if (isAttacking)
+		//{
+		//	returnPosition.x += speed * direction * a_delta;
+		//	//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
+		//	Attack(a_delta);
+		//}
+
+		//update bullets
+		if (attackState == ATTACK)
+		{
+
+			for (auto bullet : *enemyBullets)
+			{
+				if (bullet->isActive)
+				{
+					bullet->Update(a_delta);
+				}
+			}
+		}
 	}
 }
 
+void Enemy::SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets)
+{
+	enemyBullets = a_enemyBullets;
+}
 
 /*
 in order to go negative direction when the circle reaches 0 degrees it will reset to 360 and fail existing test.
@@ -134,6 +164,19 @@ void Enemy::Attack(float timeDelta)
 			attackYIntercept = b;
 		}
 
+		if (shootTimer <= 0)
+		{
+			std::cout << "shoot\n";
+			Bullet* b = GetInactiveBullet();
+			b->SetPosition(position.x, position.y - b->GetHeight() * 0.5f);
+			b->isActive = true;
+			shootTimer = shootMaxTime;
+
+		}
+		else
+		{
+			shootTimer -= timeDelta;
+		}
 		//increment x
 		if (position.y > attackExitPoint.y && position.x < attackExitPoint.x)
 		{
@@ -155,6 +198,7 @@ void Enemy::Attack(float timeDelta)
 			//set enemy x to original position and y to screenheight
 			position = Point2d{ returnPosition.x, screenHeight };
 			attackState = RETURN;
+
 		}
 
 
@@ -205,8 +249,8 @@ void Enemy::Attack(float timeDelta)
 		//			enemy->attackExitChosen = false;
 
 		//			//set enemy x to original position and y to screenheight
-		//			enemy->SetPosition(enemy->GetreturnPosition
-
+		//			enemy->SetPosition(enemy->GetreturnPosition().x, screenHeight);
+		//			enemy->SetAttackState(RETURN);
 		//		}
 
 
@@ -250,17 +294,21 @@ void Enemy::Attack(float timeDelta)
 
 }
 
+Bullet* Enemy::GetInactiveBullet()
+{
+	for (Bullet* a_bullet : *enemyBullets)
+	{
+		if (!a_bullet->isActive)
+			return a_bullet;
+	}
+	return enemyBullets->front();
+}
+
 float Enemy::GetSlopeOfLine(Point2d point1, Point2d point2)
 {
 	return (point1.y - point2.y) / (point1.x - point2.x);
 
 }
-
-//float Enemy::GetSlopeOfLine(Point2d point1, Point2d point2)
-//{
-//	return (point1.y - point2.y) / (point1.x - point2.x);
-//
-//}
 
 void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
 {

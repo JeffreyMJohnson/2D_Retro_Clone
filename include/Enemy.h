@@ -5,8 +5,11 @@
 #define _ENEMY_H_
 
 #include "AIE.h"
+//
 #include "Entity.h"
 #include "Player.h"
+#include <vector>
+#include <math.h>
 #include <assert.h>
 
 #define PI 3.14159
@@ -38,6 +41,9 @@ public:
 	float attackSpeed;
 
 	Player* player;
+	std::vector<Bullet*>* enemyBullets;
+
+	//std::vector<Bullet*> enemyBullets;
 
 	//these need to be hidden and have an easy way to increment the line
 	float attackSlope;
@@ -52,6 +58,8 @@ public:
 	float DegreeToRadians(float angleInDegrees);
 	float RadiansToDegrees(float angleInRadians);
 
+	void SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets);
+
 	void SetSpeed(float a_speed);
 	float GetSpeed();
 
@@ -63,7 +71,7 @@ public:
 
 	void Attack(float timeDelta);
 
-
+	//void LoadBullets();
 
 	void SetSpeedX(float a_speedX);
 	float GetSpeedX();
@@ -120,10 +128,14 @@ private:
 	float attackRadius;
 	Point2d attackExitPoint;
 	attackStates attackState;
+	float shootTimer;
+	float shootMaxTime;
+
 
 
 	float GetSlopeOfLine(Point2d point1, Point2d point2);
 
+	Bullet* GetInactiveBullet();
 
 
 

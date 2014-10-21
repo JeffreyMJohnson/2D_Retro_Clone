@@ -15,6 +15,7 @@
 
 
 
+
 class GameState : public BaseState
 {
 public:
@@ -26,6 +27,7 @@ public:
 	void Draw();
 	void Destroy();
 
+	std::vector<Bullet*> enemyBullets;
 
 private:
 	const float attackTimeMax = 2.0f;

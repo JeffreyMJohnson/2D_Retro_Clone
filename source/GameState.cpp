@@ -39,6 +39,8 @@ GameState::GameState()
 	enemyColMinX = 0.0f;
 	enemyColMaxX = 0.0f;
 	attackDirection = -1;
+
+
 }
 
 
@@ -68,14 +70,23 @@ void GameState::Initialize()
 
 
 	bullet = new Bullet();
-	bullet->height = 15.0f;
-	bullet->width = 4.0f;
-	bulletYOffset = bullet->height * 2;
-	bullet->x = player->GetPosition().x;
-	bullet->y = player->GetPosition().y + bulletYOffset;
+	bulletYOffset = bullet->GetHeight() * 2;
+	bullet->SetPosition(player->GetPosition().x, player->GetPosition().y + bulletYOffset);
 	bullet->velocityY = 100.0f;
-	bullet->textureId = CreateSprite("./images/bullet.png", bullet->width, bullet->height, true);
+	bullet->direction = 1;
+	bullet->SetSpriteId(CreateSprite("./images/bullet.png", bullet->GetWidth(), bullet->GetHeight(), true));
 
+	//std::vector<Bullet*> enemyBullets = std::vector<Bullet*>();
+
+	for (int i = 0; i < 50; i++)
+	{
+		Bullet* enemyBullet = new Bullet();
+		enemyBullet->velocityY = 100.0f;
+		enemyBullet->direction = -1;
+		enemyBullet->SetSpriteId(bullet->GetSpriteID());
+		enemyBullets.push_back(enemyBullet);
+
+	}
 	//bulletTexture = CreateSprite("./images/player_shot.png", 3, 20, true);
 
 	CreateEnemies();
@@ -108,13 +119,10 @@ void GameState::Destroy()
 	}
 	//DestroySprite(bulletTexture);
 }
-
-
-
 void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 {
 	//bool isAttacking = enemy->isAttacking;
-
+	enemy->Update(timeDelta);
 
 	//enemies who aren't attacking  moving left and right max and min logic
 	if (enemy->GetPosition().x > screenWidth * 0.85f && !enemy->isAttacking)
@@ -130,7 +138,7 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	}
 
 	//enemy bullet collision logic
-	if (enemy->GetIsActive() && bullet->isCollided(enemy))
+	if (bullet->isActive && enemy->GetIsActive() && bullet->isCollided(enemy))
 	{
 		enemy->SetIsActive(false);
 		bullet->isActive = false;
@@ -638,8 +646,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 			}
 			else
 			{
-				bullet->x = player->GetPosition().x;
-				bullet->y = player->GetPosition().y + bulletYOffset;
+				bullet->SetPosition(player->GetPosition().x, player->GetPosition().y + bulletYOffset);
 			}
 		}
 
@@ -778,7 +785,7 @@ void GameState::CreateEnemies()
 	{
 
 		Enemy* enemy = new Enemy();
-
+		enemy->SetEnemyBullets(&enemyBullets);
 		//enemy->SetSize(58, 26);
 		enemy->SetSize(35.0f, 25.0f);
 		enemy->SetSpeed(1.0f);

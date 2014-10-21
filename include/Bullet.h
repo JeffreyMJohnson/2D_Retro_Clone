@@ -8,7 +8,7 @@
 #include "Entity.h"
 extern const int screenHeight;
 
-class Bullet
+class Bullet : public Entity
 {
 public:
 
@@ -16,16 +16,10 @@ public:
 	Bullet();
 	~Bullet();
 
-	float x;
-	float y;
-
-	float width;
-	float height;
-
-	unsigned int textureId;
 
 	//float velocityX;
 	float velocityY;
+	int direction;
 
 	void Update(float a_delta);
 	void Draw();

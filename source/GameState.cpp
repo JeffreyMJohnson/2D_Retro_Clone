@@ -46,39 +46,42 @@ GameState::GameState()
 
 GameState::~GameState()
 {
-	delete bullet;
+	//delete bullet;
 }
 
 void GameState::Initialize()
 {
 	//gameOver = false; 
 
-	Player* player = new Player();
+	Player* player = new Player("./images/player/galaxian.png", 45.0f, 51.0f);
+	player->Init(Point2d{ screenWidth * 0.5f, 100.0f }, Point2d{ 0, 0 }, 51.0f, 1);
 
-	player->SetSize(45.0f, 51.0f);
-	player->SetMovementKeys('A', 'D');
-	//player->SetShootKey(32); //space key
-	player->SetMovementExtremes(0, screenWidth);
-	player->SetSpriteId(CreateSprite("./images/player/galaxian.png", player->GetWidth(), player->GetHeight(), true));
-	player->SetPosition(screenWidth * 0.5f, 100.0f);
-	player->SetSpeed(10.0f);
+	//player->SetSize(45.0f, 51.0f);
+	//player->SetMovementKeys('A', 'D');
+	////player->SetShootKey(32); //space key
+	//player->SetMovementExtremes(0, screenWidth);
+	//player->SetSpriteId(CreateSprite("./images/player/galaxian.png", player->GetWidth(), player->GetHeight(), true));
+	//player->SetPosition(screenWidth * 0.5f, 100.0f);
+	//player->SetSpeed(10.0f);
 
 	////add player to dynamic array
 	gameObjects.push_back(player);
 
-	MoveSprite(player->GetSpriteID(), player->GetPosition().x, player->GetPosition().y);
+	//MoveSprite(player->GetSpriteID(), player->GetPosition().x, player->GetPosition().y);
 
 
-	bullet = new Bullet();
+	/*bullet = new Bullet("./images/bullet.png", 4.0f, 15.0f);
 	bulletYOffset = bullet->GetHeight() * 2;
-	bullet->SetPosition(player->GetPosition().x, player->GetPosition().y + bulletYOffset);
+	bullet->Spawn(Point2d{ player->position.x, player->position.y + bulletYOffset }, Point2d{ 0, 0 }, 0, 1);*/
+
+	/*bullet->SetPosition(player->GetPosition().x, player->GetPosition().y + bulletYOffset);
 	bullet->velocityY = 100.0f;
 	bullet->direction = 1;
-	bullet->SetSpriteId(CreateSprite("./images/bullet.png", bullet->GetWidth(), bullet->GetHeight(), true));
+	bullet->SetSpriteId(CreateSprite("./images/bullet.png", bullet->GetWidth(), bullet->GetHeight(), true));*/
 
 	//std::vector<Bullet*> enemyBullets = std::vector<Bullet*>();
 
-	for (int i = 0; i < 50; i++)
+	/*for (int i = 0; i < 50; i++)
 	{
 		Bullet* enemyBullet = new Bullet();
 		enemyBullet->velocityY = 100.0f;
@@ -86,7 +89,7 @@ void GameState::Initialize()
 		enemyBullet->SetSpriteId(bullet->GetSpriteID());
 		enemyBullets.push_back(enemyBullet);
 
-	}
+	}*/
 	//bulletTexture = CreateSprite("./images/player_shot.png", 3, 20, true);
 
 	CreateEnemies();
@@ -138,11 +141,11 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	}
 
 	//enemy bullet collision logic
-	if (bullet->isActive && enemy->GetIsActive() && bullet->isCollided(enemy))
-	{
-		enemy->SetIsActive(false);
-		bullet->isActive = false;
-	}
+	//if (bullet->alive && enemy->GetIsActive() && bullet->collider.isCollided(enemy->collider))
+	//{
+	//	enemy->SetIsActive(false);
+	//	bullet->alive = false;
+	//}
 
 	//attack logic
 
@@ -632,23 +635,23 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 			EnemyLogic(dynamic_cast<Enemy*>(object), a_timestep);
 		}
 
-		if (dynamic_cast<Player*>(object) != 0)
-		{
-			Player* player = dynamic_cast<Player*>(object);
-			if (IsKeyDown(player->shootKey) && !bullet->isActive)
-			{
-				bullet->isActive = true;
-			}
+		//if (dynamic_cast<Player*>(object) != 0)
+		//{
+		//	Player* player = dynamic_cast<Player*>(object);
+		//	if (IsKeyDown(player->shootKey) && !bullet->isActive)
+		//	{
+		//		bullet->isActive = true;
+		//	}
 
-			if (bullet->isActive)
-			{
-				bullet->Update(a_timestep);
-			}
-			else
-			{
-				bullet->SetPosition(player->GetPosition().x, player->GetPosition().y + bulletYOffset);
-			}
-		}
+		//	if (bullet->isActive)
+		//	{
+		//		bullet->Update(a_timestep);
+		//	}
+		//	else
+		//	{
+		//		bullet->SetPosition(player->GetPosition().x, player->GetPosition().y + bulletYOffset);
+		//	}
+		//}
 
 	}
 
@@ -743,7 +746,7 @@ void GameState::Draw()
 		object->Draw();
 	}
 
-	bullet->Draw();
+	//bullet->Draw();
 
 	//DrawLine(0, lineYPos, screenWidth, lineYPos, SColour(0x00, 0xFF, 0x00, 0xFF));
 

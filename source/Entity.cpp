@@ -3,7 +3,7 @@
 
 Entity::Entity()
 {
-	collisionDx = 0.0f;
+	//collisionDx = 0.0f;
 }
 
 /*
@@ -12,22 +12,22 @@ within both object's set collision distance. otherwise will return false.
 //make sure you set the collisionDx variable in each object before calling this function;
 uses circle collider algorithm -> the collision formula is (x2 - x1)^2 + (y2 - y1)^2 <= (r1 + r2)^2
 */
-bool Entity::isCollided(Entity* other)
-{
-	using namespace std;
-	return pow(other->position.x - position.x, 2) + pow(other->position.y - position.y, 2) <= pow(collisionDx + other->collisionDx, 2);
+//bool Entity::isCollided(Entity* other)
+//{
+//	using namespace std;
+//	return pow(other->position.x - position.x, 2) + pow(other->position.y - position.y, 2) <= pow(collisionDx + other->collisionDx, 2);
+//
+//}
 
-}
-
-void Entity::SetCollisionDx(float dx)
-{
-	collisionDx = dx;
-}
-
-float Entity::GetCollisionDx()
-{
-	return collisionDx;
-}
+//void Entity::SetCollisionDx(float dx)
+//{
+//	collisionDx = dx;
+//}
+//
+//float Entity::GetCollisionDx()
+//{
+//	return collisionDx;
+//}
 
 void Entity::SetSize(float a_width, float a_height)
 {

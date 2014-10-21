@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\Bullet.cpp" />
+    <ClCompile Include="source\CircleCollider.cpp" />
     <ClCompile Include="source\Enemy.cpp" />
     <ClCompile Include="source\Entity.cpp" />
     <ClCompile Include="source\GameState.cpp" />
@@ -102,11 +103,13 @@
   <ItemGroup>
     <ClInclude Include="include\BaseState.h" />
     <ClInclude Include="include\Bullet.h" />
+    <ClInclude Include="include\CircleCollider.h" />
     <ClInclude Include="include\Enemy.h" />
     <ClInclude Include="include\Entity.h" />
     <ClInclude Include="include\GameState.h" />
     <ClInclude Include="include\Player.h" />
     <ClInclude Include="include\StateMachine.h" />
+    <ClInclude Include="include\Utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

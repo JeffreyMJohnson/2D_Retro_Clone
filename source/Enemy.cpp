@@ -167,9 +167,9 @@ void Enemy::Attack(float timeDelta)
 		if (shootTimer <= 0)
 		{
 			std::cout << "shoot\n";
-			Bullet* b = GetInactiveBullet();
-			b->SetPosition(position.x, position.y - b->GetHeight() * 0.5f);
-			b->isActive = true;
+			/*Bullet* b = GetInactiveBullet();
+			b->SetPosition(position.x, position.y - b->GetHeight() * 0.5f);*/
+			//b->isActive = true;
 			shootTimer = shootMaxTime;
 
 		}
@@ -294,15 +294,15 @@ void Enemy::Attack(float timeDelta)
 
 }
 
-Bullet* Enemy::GetInactiveBullet()
-{
-	for (Bullet* a_bullet : *enemyBullets)
-	{
-		if (!a_bullet->isActive)
-			return a_bullet;
-	}
-	return enemyBullets->front();
-}
+//Bullet* Enemy::GetInactiveBullet()
+//{
+//	for (Bullet* a_bullet : *enemyBullets)
+//	{
+//		if (!a_bullet->isActive)
+//			return a_bullet;
+//	}
+//	return enemyBullets->front();
+//}
 
 float Enemy::GetSlopeOfLine(Point2d point1, Point2d point2)
 {

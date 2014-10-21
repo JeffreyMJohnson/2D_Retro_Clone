@@ -1,20 +1,30 @@
 #pragma once
 #ifndef _ENTITY_H_
 #define _ENTITY_H_
-#include <math.h>
+#include "Utility.h"
+#include "CircleCollider.h"
 
-struct Point2d
-{
-	float x, y;
-};
+extern const int screenWidth;
+extern const int screenHeight;
 
 class Entity
 {
 public:
+
+
+
+	unsigned int spriteID;
+	float width;
+	float height;
+	Point2d position;
+	Point2d velocity;
+	float speed;
+	bool alive;
+
 	Entity();
 
 	void SetSize(float a_width, float a_height);
-	
+
 	void SetPosition(float a_x, float a_y);
 	void SetX(float x);
 	void SetY(float y);
@@ -32,18 +42,20 @@ public:
 	void SetHeight(float a_height);
 	float GetHeight();
 
-	void SetCollisionDx(float dx);
-	float GetCollisionDx();
 
+	//refactored out to CircleCollider class
+	/*void SetCollisionDx(float dx);
+	float GetCollisionDx();
 	bool isCollided(Entity* other);
+	*/
+
+	CircleCollider collider;
+
 
 	~Entity();
 
 protected:
-	unsigned int spriteID;
-	float width;
-	float height;
-	Point2d position;
-	float collisionDx;
+
+	//float collisionDx;
 };
 #endif // !_ENTITY_H_

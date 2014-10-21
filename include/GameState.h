@@ -75,7 +75,7 @@ private:
 	std::vector<Entity*> gameObjects;
 	std::vector<Enemy*> attackingEnemies;
 
-	Bullet* bullet;
+	//Bullet* bullet;
 	//offset for bullet position in relation to player
 	float bulletYOffset;
 

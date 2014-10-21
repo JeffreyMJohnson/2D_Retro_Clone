@@ -135,7 +135,7 @@ private:
 
 	float GetSlopeOfLine(Point2d point1, Point2d point2);
 
-	Bullet* GetInactiveBullet();
+	//Bullet* GetInactiveBullet();
 
 
 

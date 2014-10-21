@@ -1,18 +1,85 @@
 #include "Player.h"
 
-Player::Player()
+Player::Player(char* filePath, float a_width, float a_height)
 {
-	width = 64;
-	height = 32;
-	//start position
-	SetPosition(0, 0);
+	/*width = 64;
+	height = 32;*/
 
-	shootKey = 32;//space key
-	//currentReloadBulletTime = 0.0f;
-	//maxBulletReloadTime = .25f;
+	width = a_width;
+	height = a_height;
+	spriteID = CreateSprite(filePath, a_width, a_height, true);
+	////start position
+	//SetPosition(0, 0);
 
-	//AddScore(0);
+	//shootKey = 32;//space key
+	////currentReloadBulletTime = 0.0f;
+	////maxBulletReloadTime = .25f;
 
+	////AddScore(0);
+
+}
+
+//initialize player with position, velocity, radius (collider),health, speed and alive
+void Player::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health)
+{
+	position = a_pos;
+	velocity = a_velocity;
+	collider.radius = a_radius;
+	health = a_health;
+	speed = 1.0f;
+	alive = true;
+
+}
+
+//input handling
+void Player::Input()
+{
+	//start with 0 velocity
+	velocity = Point2d{ 0, 0 };
+
+	if (IsKeyDown(GLFW_KEY_A))
+	{
+		if (position.y <= 0)
+		{
+			position.y = 0;
+			velocity.y = 0;
+		}
+		else
+		{
+			velocity.y = -1;
+		}
+
+	}
+
+	if (IsKeyDown(GLFW_KEY_D))
+	{
+		if (position.y >= screenWidth - (height * 0.5f))
+		{
+			position.y = screenWidth - (height * 0.5f);
+			velocity.y = 0;
+		}
+		else
+		{
+			velocity.y = 1;
+		}
+
+	}
+
+	if (IsKeyDown(GLFW_KEY_SPACE))
+	{
+		Shoot();
+	}
+}
+
+//handle shooting
+void Player::Shoot()
+{
+	//only get one bullet at a time so check if alive
+	//if (!bullet.alive)
+	//{
+	//	bullet.alive = true;
+	//	bullet.velocity = Point2d{ 0, 1 };
+	//}
 }
 
 void Player::SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
@@ -29,33 +96,33 @@ void Player::SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_righ
 
 void Player::Update(float a_delta)
 {
-	if (IsKeyDown(moveLeftKey))
+	Input();
+	position.x += velocity.x * speed * a_delta;
+	position.y += velocity.y * speed * a_delta;
+	MoveSprite(spriteID, position.x, position.y);
+
+	/*if (IsKeyDown(moveLeftKey))
 	{
-		position.x -= a_delta * speed;
-		if (position.x < (leftMovementExtreme + width * 0.5f))
-		{
-			position.x = (leftMovementExtreme + width * 0.5f);
-		}
+	position.x -= a_delta * speed;
+	if (position.x < (leftMovementExtreme + width * 0.5f))
+	{
+	position.x = (leftMovementExtreme + width * 0.5f);
+	}
 	}
 
 	if (IsKeyDown(moveRightKey))
 	{
-		position.x += a_delta * speed;
-		if (position.x >(rightMovementExtreme - width * 0.5f))
-		{
-			position.x = (rightMovementExtreme - width * 0.5f);
-		}
+	position.x += a_delta * speed;
+	if (position.x >(rightMovementExtreme - width * 0.5f))
+	{
+	position.x = (rightMovementExtreme - width * 0.5f);
 	}
-
-	
-
-	
-
+	}*/
 }
 
 void Player::Draw()
 {
-	MoveSprite(spriteID, position.x, position.y);
+	//MoveSprite(spriteID, position.x, position.y);
 	DrawSprite(spriteID);
 }
 
@@ -95,15 +162,15 @@ returns the first bullet in the array.
 
 //Setters / getters
 
-void Player::SetSpeed(float a_speed)
-{
-	speed = a_speed;
-}
-
-float Player::GetSpeed()
-{
-	return speed;
-}
+//void Player::SetSpeed(float a_speed)
+//{
+//	speed = a_speed;
+//}
+//
+//float Player::GetSpeed()
+//{
+//	return speed;
+//}
 
 void Player::SetMoveLeftKey(unsigned int a_moveKey)
 {

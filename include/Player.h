@@ -3,9 +3,8 @@
 #ifndef _PLAYER_H_
 #define  _PLAYER_H_
 
-#include "AIE.h"
-
 #include "Entity.h"
+#include "Utility.h"
 #include "Bullet.h"
 #include <iostream>
 
@@ -27,11 +26,20 @@ const int MAX_BULLETS = 20;
 class Player : public Entity
 {
 public:
-
+	
 	//Bullet bullets[MAX_BULLETS];
 
-	Player();
+	//Instantiate player with sprite
+	Player(char* filePath, float width, float height);
 
+	//initialize player with position, velocity, radius (collider),health, speed and alive
+	void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health);
+
+	//input handling
+	void Input();
+
+	//handle shooting
+	void Shoot();
 
 	//convenience functions
 	/*void SetSize(float a_width, float a_height);
@@ -47,7 +55,7 @@ public:
 	/*
 	Get inactive bullet from bullets array (if any) and initialize with player's current position.
 	*/
-	void Shoot(unsigned int a_textureID, float _a_delta);
+	//void Shoot(unsigned int a_textureID, float _a_delta);
 
 	/*
 	Returns reference to first Bullet object in bullets array that is not active. If all are active
@@ -66,8 +74,8 @@ public:
 
 	//standard setters/getters
 	
-	void SetSpeed(float a_speed);
-	float GetSpeed();
+	/*void SetSpeed(float a_speed);
+	float GetSpeed();*/
 
 	void SetMoveLeftKey(unsigned int a_moveKey);
 	unsigned int GetLeftMoveKey();
@@ -92,8 +100,8 @@ public:
 	unsigned int shootKey;
 
 private:
-	float speed;
-
+	//float speed;
+	int health;
 	unsigned int moveLeftKey;
 	unsigned int moveRightKey;
 	

@@ -62,13 +62,13 @@ void Enemy::Update(float a_delta)
 		if (attackState == ATTACK)
 		{
 
-			for (auto bullet : *enemyBullets)
-			{
-				if (bullet->isActive)
-				{
-					bullet->Update(a_delta);
-				}
-			}
+			//for (auto bullet : *enemyBullets)
+			//{
+			//	if (bullet->isActive)
+			//	{
+			//		bullet->Update(a_delta);
+			//	}
+			//}
 		}
 	}
 }

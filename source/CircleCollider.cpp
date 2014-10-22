@@ -21,6 +21,7 @@ uses circle collider algorithm -> the collision formula is (x2 - x1)^2 + (y2 - y
 bool CircleCollider::isCollided(CircleCollider &other)
 {
 	using namespace std;
+
 	return pow(other.center.x - center.x, 2) + pow(other.center.y - center.y, 2) <= pow(radius + other.radius, 2);
 
 }

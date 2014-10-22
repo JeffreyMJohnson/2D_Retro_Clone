@@ -49,6 +49,7 @@ void Bullet::Update(float a_delta)
 
 	position.x += velocity.x * speed * a_delta;
 	position.y += velocity.y * speed * a_delta;
+	collider.center = position;
 
 	MoveSprite(spriteID, position.x, position.y);
 

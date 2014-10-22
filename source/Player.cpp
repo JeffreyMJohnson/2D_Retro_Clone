@@ -107,6 +107,8 @@ void Player::Update(float a_delta)
 		BulletManager::playerBullet->alive = false;
 	}
 
+	collider.center = position;
+
 }
 
 void Player::Draw()

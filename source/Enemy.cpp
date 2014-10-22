@@ -5,10 +5,47 @@
 int Enemy::activeEnemyCount = 0;
 
 
-Enemy::Enemy()
+//Enemy::Enemy()
+//{
+//	//isActive = true;
+//	//direction = 1;
+//	activeEnemyCount++;
+//	isAttacking = false;
+//	isLeader = false;
+//	returnPosition.x = 0;
+//	returnPosition.y = 0;
+//	//in radians so convert;
+//	attackAngle = Helper::DegreeToRadians(90.0f);
+//	//attackAngle = DegreeToRadians(90.0f);
+//	attackRadius = 50.0f;
+//	attackState = MOVE;
+//	attackExitPoint = Point2d{ 0, 0 };
+//	attackExitChosen = false;
+//	attackSlope = 0.0f;
+//	attackYIntercept = 0.0f;
+//	//attackDirection = 0;
+//	attackVelocity = Point2d{ 0, 0 };
+//	attackSpeed = 5.0f;
+//	shootMaxTime = .5f;
+//	shootTimer = shootMaxTime;
+//
+//	player = nullptr;
+//
+//	//LoadBullets();
+//
+//	//reset in GameState.cpp enemyLogic() function
+//	//attackTimer = 5.0f;
+//
+//}
+
+//Instantiate enemy with sprite
+Enemy::Enemy(const char* filePath, float a_width, float a_height)
 {
-	//isActive = true;
-	//direction = 1;
+	width = a_width;
+	height = a_height;
+	spriteID = CreateSprite(filePath, a_width, a_height, true);
+	
+
 	activeEnemyCount++;
 	isAttacking = false;
 	isLeader = false;
@@ -30,21 +67,6 @@ Enemy::Enemy()
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
-
-	//LoadBullets();
-
-	//reset in GameState.cpp enemyLogic() function
-	//attackTimer = 5.0f;
-
-}
-
-//Instantiate enemy with sprite
-Enemy::Enemy(const char* filePath, float a_width, float a_height)
-{
-	width = a_width;
-	height = a_height;
-	spriteID = CreateSprite(filePath, a_width, a_height, true);
-	Enemy();
 }
 
 //Initialize enemy with position, velocity, collider radius, health, speed and alive
@@ -60,14 +82,20 @@ void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health
 
 void Enemy::Update(float a_delta)
 {
+	//keep pace with the other moving group except when attack mode
 	if (alive && attackState != ATTACK)
 	{
 		position.x += speed * velocity.x * a_delta;
 	}
 	if (isAttacking)
 	{
+		//move position with the group so it's synced
 		returnPosition.x += speed * velocity.x * a_delta;
+
+
 		//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
+
+		//go through attack phases
 		Attack(a_delta);
 
 		//if (isActive && attackState != ATTACK)
@@ -94,6 +122,8 @@ void Enemy::Update(float a_delta)
 			//}
 		}
 	}
+	//set collider center after each update to sync to position.;
+	collider.center = position;
 }
 
 //void Enemy::SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets)
@@ -141,7 +171,7 @@ void Enemy::Attack(float timeDelta)
 			float sinA = sin(attackAngle);
 			float angleR = attackAngle;
 			float angleD = RadiansToDegrees(attackAngle);*/
-			attackAngle = attackAngle + Helper::DegreeToRadians(.05f) * attackVelocity.y * attackSpeed;
+			attackAngle = attackAngle + Helper::DegreeToRadians(.05f) * attackVelocity.x * attackSpeed;
 			if (Helper::RadiansToDegrees(attackAngle) <= 0)
 			{
 				attackAngle = Helper::DegreeToRadians(360.0f);
@@ -166,11 +196,11 @@ void Enemy::Attack(float timeDelta)
 			if (position.x < player->GetPosition().x)
 			{
 				//pick to right of player
-				attackVelocity = Point2d{ 1, -1 };
+				attackVelocity = Point2d{ 1, 1 };
 			}
 			else//enemy to right or equal of player so go left
 			{
-				attackVelocity = Point2d{ -1, -1 };
+				attackVelocity = Point2d{ -1, 1 };
 			}
 			attackExitPoint = Point2d{ player->position.x + 100.0f * attackVelocity.x, 0 };
 			attackExitChosen = true;
@@ -186,19 +216,19 @@ void Enemy::Attack(float timeDelta)
 			attackYIntercept = b;
 		}
 
-		if (shootTimer <= 0)
-		{
-			std::cout << "shoot\n";
-			/*Bullet* b = GetInactiveBullet();
-			b->SetPosition(position.x, position.y - b->GetHeight() * 0.5f);*/
-			//b->isActive = true;
-			shootTimer = shootMaxTime;
+		//if (shootTimer <= 0)
+		//{
+		//	std::cout << "shoot\n";
+		//	/*Bullet* b = GetInactiveBullet();
+		//	b->SetPosition(position.x, position.y - b->GetHeight() * 0.5f);*/
+		//	//b->isActive = true;
+		//	shootTimer = shootMaxTime;
 
-		}
-		else
-		{
-			shootTimer -= timeDelta;
-		}
+		//}
+		//else
+		//{
+		//	shootTimer -= timeDelta;
+		//}
 
 
 		//increment x
@@ -207,6 +237,7 @@ void Enemy::Attack(float timeDelta)
 		{
 			float x = position.x + attackSpeed * attackVelocity.x * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;
+			position = Point2d{ x, y };
 			/*float x = position.x + attackSpeed * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;
 			position = Point2d{ x, y };*/

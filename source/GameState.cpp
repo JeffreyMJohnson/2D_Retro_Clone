@@ -39,7 +39,8 @@ GameState::GameState()
 	enemyColMinX = 0.0f;
 	enemyColMaxX = 0.0f;
 	//attackDirection = -1;
-	attackVelocity = Point2d{ -1, -1 }; 
+	//need to be a positive y for first stage of attack
+	attackVelocity = Point2d{ -1, 1 }; 
 
 
 }
@@ -409,38 +410,6 @@ void GameState::ChooseAttackers()
 		}
 	}
 
-
-
-	//float minX = screenWidth;
-	//float maxX = 0.0f;
-
-	//GetEnemyColX(minX, maxX);
-
-	//int attackDirection = GetRandomDirection();
-
-	//for (auto object : gameObjects)
-	//{
-	//	if (dynamic_cast<Enemy*>(object) != 0)
-	//	{
-	//		Enemy* enemy = dynamic_cast<Enemy*>(object);
-
-	//		//going to attack to left so use minx
-	//		if (enemy->GetPosition().x == minX && enemy->attackDirection == -1)
-	//		{
-	//			enemy->isAttacking = true;
-	//		}
-
-
-	//		//going to attack to left so use maxX
-	//		if (enemy->GetPosition().x == maxX && enemy->GetDirection() == 1)
-	//		{
-	//			enemy->isAttacking = true;
-	//		}
-	//	}
-	//}
-
-	//sendAttack = true;
-
 }
 
 /*
@@ -603,14 +572,14 @@ void GameState::GetAttackDirection()
 	int i = rand() % 2; //0 or 1
 	if (i == 0)
 	{
-		attackVelocity = Point2d{ -1, -1 }; //right circle
+		attackVelocity = Point2d{ -1, 1 }; //right circle
 	}
 	else
 	{
-		attackVelocity = Point2d{ 1, -1 };//left circle
+		attackVelocity = Point2d{ 1, 1 };//left circle
 	}
 	//debug
-	attackVelocity = Point2d{ -1, -1 };
+	attackVelocity = Point2d{ 1, 1 };
 }
 
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
@@ -827,7 +796,7 @@ void GameState::CreateEnemies()
 
 		//initialize position
 		//enemy->SetPosition(enemyX, enemyY);
-		enemy->Init(Point2d{ enemyX, enemyY }, Point2d{ 1, 0 }, 26, 30, 1.0f);
+		enemy->Init(Point2d{ enemyX, enemyY }, Point2d{ 1, 0 }, 25, 30, 1.0f);
 
 		//increment next enemy's x position
 		enemyX += enemy->GetWidth() + 10.0f;

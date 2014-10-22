@@ -18,6 +18,7 @@ public:
 		}
 
 		playerBullet = new Bullet("./images/bullet.png", 3, 15);
+		playerBullet->Init(Point2d{ 0, 0 }, Point2d{ 0, 1 }, 0, 1, 1);
 	}
 
 	static bool SetBullet(TYPE type, Point2d a_pos, Point2d a_velocity, float a_speed, int a_health)
@@ -47,8 +48,12 @@ public:
 
 	static void Update(float a_delta)
 	{
+
 		playerBullet->Update(a_delta);
 		playerBullet->Draw();
+
+
+
 
 		for (Bullet* bullet : bullets)
 		{
@@ -72,7 +77,7 @@ public:
 
 private:
 	static std::vector<Bullet*> bullets;
-	
+
 };
 
 #endif

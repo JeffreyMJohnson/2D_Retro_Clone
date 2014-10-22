@@ -6,7 +6,9 @@ class BulletManager
 {
 public:
 	BulletManager();
-	~BulletManager();
+
+
+	static Bullet* playerBullet;
 
 	static void Init()
 	{
@@ -14,15 +16,29 @@ public:
 		{
 			bullets.emplace_back(new Bullet("./images/bullet.png", 3, 20));
 		}
+
+		playerBullet = new Bullet("./images/bullet.png", 3, 15);
 	}
 
 	static bool SetBullet(TYPE type, Point2d a_pos, Point2d a_velocity, float a_speed, int a_health)
 	{
-		for (Bullet* bullet : bullets)
+
+		if (type == ENEMY)
 		{
-			if (!bullet->alive)
+			for (Bullet* bullet : bullets)
 			{
-				bullet->Spawn(a_pos, a_velocity, a_speed, a_health);
+				if (!bullet->alive)
+				{
+					bullet->Spawn(a_pos, a_velocity, a_speed, a_health);
+					return true;
+				}
+			}
+		}
+		else
+		{
+			if (!playerBullet->alive)
+			{
+				playerBullet->Spawn(a_pos, a_velocity, a_speed, a_health);
 				return true;
 			}
 		}
@@ -31,6 +47,9 @@ public:
 
 	static void Update(float a_delta)
 	{
+		playerBullet->Update(a_delta);
+		playerBullet->Draw();
+
 		for (Bullet* bullet : bullets)
 		{
 			if (bullet->alive)
@@ -39,10 +58,21 @@ public:
 				bullet->Draw();
 			}
 		}
+
+	}
+
+	~BulletManager()
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			delete bullets[i];
+		}
+		delete playerBullet;
 	}
 
 private:
 	static std::vector<Bullet*> bullets;
+	
 };
 
 #endif

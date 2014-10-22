@@ -26,9 +26,9 @@ void Player::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_healt
 	velocity = a_velocity;
 	collider.radius = a_radius;
 	health = a_health;
-	speed = 1.0f;
+	speed = 10.0f;
 	alive = true;
-	bullet.Init(a_pos, Point2d{ 0, 1 }, 100.0f, 15.0f, 1);
+	//bullet.Init(a_pos, Point2d{ 0, 1 }, 100.0f, 15.0f, 1);
 
 }
 
@@ -40,28 +40,28 @@ void Player::Input()
 
 	if (IsKeyDown(GLFW_KEY_A))
 	{
-		if (position.y <= 0)
+		if (position.x <= 0)
 		{
-			position.y = 0;
-			velocity.y = 0;
+			position.x = 0;
+			velocity.x = 0;
 		}
 		else
 		{
-			velocity.y = -1;
+			velocity.x = -1;
 		}
 
 	}
 
 	if (IsKeyDown(GLFW_KEY_D))
 	{
-		if (position.y >= screenWidth - (height * 0.5f))
+		if (position.x >= screenWidth - (height * 0.5f))
 		{
-			position.y = screenWidth - (height * 0.5f);
-			velocity.y = 0;
+			position.x = screenWidth - (height * 0.5f);
+			velocity.x = 0;
 		}
 		else
 		{
-			velocity.y = 1;
+			velocity.x = 1;
 		}
 
 	}
@@ -75,12 +75,8 @@ void Player::Input()
 //handle shooting
 void Player::Shoot()
 {
-	//only get one bullet at a time so check if alive
-	//if (!bullet.alive)
-	//{
-	//	bullet.alive = true;
-	//	bullet.velocity = Point2d{ 0, 1 };
-	//}
+	BulletManager::playerBullet->velocity = Point2d{ 0, 1 };
+	BulletManager::playerBullet->alive = true;
 }
 
 void Player::SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
@@ -98,27 +94,19 @@ void Player::SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_righ
 void Player::Update(float a_delta)
 {
 	Input();
+
 	position.x += velocity.x * speed * a_delta;
 	position.y += velocity.y * speed * a_delta;
+
 	MoveSprite(spriteID, position.x, position.y);
 
-	/*if (IsKeyDown(moveLeftKey))
+	if (!BulletManager::playerBullet->alive)
 	{
-	position.x -= a_delta * speed;
-	if (position.x < (leftMovementExtreme + width * 0.5f))
-	{
-	position.x = (leftMovementExtreme + width * 0.5f);
-	}
+		//set bullet makes bullet alive but want it dead here until player shoots
+		BulletManager::SetBullet(PLAYER, Point2d{ position.x, (position.y + 30) }, Point2d{ 0, 0 }, 100, 1);
+		BulletManager::playerBullet->alive = false;
 	}
 
-	if (IsKeyDown(moveRightKey))
-	{
-	position.x += a_delta * speed;
-	if (position.x >(rightMovementExtreme - width * 0.5f))
-	{
-	position.x = (rightMovementExtreme - width * 0.5f);
-	}
-	}*/
 }
 
 void Player::Draw()
@@ -126,52 +114,6 @@ void Player::Draw()
 	//MoveSprite(spriteID, position.x, position.y);
 	DrawSprite(spriteID);
 }
-
-/*
-Get inactive bullet from bullets array (if any) and initialize with player's current position.
-*/
-//void Player::Shoot(unsigned int a_textureID, float _a_delta)
-//{
-//	if (IsKeyDown(shootKey) && currentReloadBulletTime >= maxBulletReloadTime)
-//	{
-//		GetInactiveBullet().InitializeBullet(x, y, 0, 500, a_textureID);
-//		currentReloadBulletTime = 0.0f;
-//	}
-//	currentReloadBulletTime += _a_delta;
-//	
-//}
-
-/*
-Returns reference to first Bullet object in bullets array that is not active. If all are active
-returns the first bullet in the array.
-*/
-//Bullet& Player::GetInactiveBullet()
-//{
-//	for (int i = 0; i < MAX_BULLETS; i++)
-//	{
-//		if (!bullets[i].isActive)
-//		{
-//			return bullets[i];
-//		}
-//	}
-//
-//	return bullets[0];
-//}
-
-
-
-
-//Setters / getters
-
-//void Player::SetSpeed(float a_speed)
-//{
-//	speed = a_speed;
-//}
-//
-//float Player::GetSpeed()
-//{
-//	return speed;
-//}
 
 void Player::SetMoveLeftKey(unsigned int a_moveKey)
 {

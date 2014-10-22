@@ -5,7 +5,7 @@
 
 #include "Entity.h"
 #include "Utility.h"
-#include "Bullet.h"
+#include "BulletManager.h"
 #include <iostream>
 
 struct Score

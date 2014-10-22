@@ -46,7 +46,17 @@ GameState::GameState()
 
 GameState::~GameState()
 {
-	//delete bullet;
+	for (auto object : gameObjects)
+	{
+		if (dynamic_cast<Enemy*>(object) != 0)
+		{
+			delete dynamic_cast<Enemy*>(object);
+		}
+		if (dynamic_cast<Player*>(object) != 0)
+		{
+			delete dynamic_cast<Player*>(object);
+		}
+	}
 }
 
 void GameState::Initialize()
@@ -144,11 +154,13 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	}
 
 	//enemy bullet collision logic
+	
 	//if (bullet->alive && enemy->GetIsActive() && bullet->collider.isCollided(enemy->collider))
-	//{
-	//	enemy->SetIsActive(false);
-	//	bullet->alive = false;
-	//}
+	if (BulletManager::playerBullet->alive && enemy->GetIsActive() && BulletManager::playerBullet->collider.isCollided(enemy->collider))
+	{
+		enemy->SetIsActive(false);
+		BulletManager::playerBullet->alive = false;
+	}
 
 	//attack logic
 
@@ -658,7 +670,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 
 	}
 
-
+	BulletManager::Update(a_timestep);
 
 
 	////escape key
@@ -738,6 +750,8 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	}
 	}*/
 
+	
+
 }
 
 void GameState::Draw()
@@ -748,6 +762,8 @@ void GameState::Draw()
 	{
 		object->Draw();
 	}
+
+	
 
 	//bullet->Draw();
 

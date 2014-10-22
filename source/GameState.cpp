@@ -38,7 +38,8 @@ GameState::GameState()
 	sendAttack = false;
 	enemyColMinX = 0.0f;
 	enemyColMaxX = 0.0f;
-	attackDirection = -1;
+	//attackDirection = -1;
+	attackVelocity = Point2d{ -1, -1 }; 
 
 
 }
@@ -156,9 +157,9 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	//enemy bullet collision logic
 	
 	//if (bullet->alive && enemy->GetIsActive() && bullet->collider.isCollided(enemy->collider))
-	if (BulletManager::playerBullet->alive && enemy->GetIsActive() && BulletManager::playerBullet->collider.isCollided(enemy->collider))
+	if (BulletManager::playerBullet->alive && enemy->alive && BulletManager::playerBullet->collider.isCollided(enemy->collider))
 	{
-		enemy->SetIsActive(false);
+		enemy->alive = false;
 		BulletManager::playerBullet->alive = false;
 	}
 
@@ -394,12 +395,14 @@ void GameState::ChooseAttackers()
 		{
 			Enemy* enemy = dynamic_cast<Enemy*>(entity);
 			//if direction is left (1) then use the min column else use the max
-			if ((attackDirection == 1 && enemy->GetPosition().x == enemyColMinX) ||
-				(attackDirection == -1 && enemy->GetPosition().x == enemyColMaxX))
+			//if ((attackDirection == 1 && enemy->GetPosition().x == enemyColMinX) ||
+			//	(attackDirection == -1 && enemy->GetPosition().x == enemyColMaxX))
+			if ((attackVelocity.x == 1 && enemy->position.x == enemyColMinX) ||
+				(attackVelocity.x == -1 && enemy->position.x == enemyColMaxX))
 			{
 				enemy->isAttacking = true;
-				enemy->attackDirection = attackDirection;
-				enemy->SetReturnPosition(enemy->GetPosition());
+				enemy->attackVelocity = attackVelocity;
+				enemy->SetReturnPosition(enemy->position);
 				attackingEnemies.push_back(enemy);
 			}
 
@@ -498,7 +501,8 @@ void GameState::ReverseEnemies()
 	{
 		if (dynamic_cast<Enemy*>(object) != 0)
 		{
-			dynamic_cast<Enemy*>(object)->SetDirection(dynamic_cast<Enemy*>(object)->GetDirection() * -1);
+			//dynamic_cast<Enemy*>(object)->SetDirection(dynamic_cast<Enemy*>(object)->GetDirection() * -1);
+			dynamic_cast<Enemy*>(object)->velocity.x =  dynamic_cast<Enemy*>(object)->velocity.x * -1;
 		}
 	}
 }
@@ -599,14 +603,14 @@ void GameState::GetAttackDirection()
 	int i = rand() % 2; //0 or 1
 	if (i == 0)
 	{
-		attackDirection = -1; //right circle
+		attackVelocity = Point2d{ -1, -1 }; //right circle
 	}
 	else
 	{
-		attackDirection = 1;//left circle
+		attackVelocity = Point2d{ 1, -1 };//left circle
 	}
 	//debug
-	attackDirection = -1;
+	attackVelocity = Point2d{ -1, -1 };
 }
 
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
@@ -806,13 +810,13 @@ void GameState::CreateEnemies()
 	for (int i = 0; i < NUM_ENEMYS; i++)
 	{
 
-		Enemy* enemy = new Enemy();
-		enemy->SetEnemyBullets(&enemyBullets);
+		Enemy* enemy = new Enemy("./images/blue_enemy/blue_enemy_1.png", 35, 25);
+		//enemy->SetEnemyBullets(&enemyBullets);
 		//enemy->SetSize(58, 26);
-		enemy->SetSize(35.0f, 25.0f);
+		/*enemy->SetSize(35.0f, 25.0f);
 		enemy->SetSpeed(1.0f);
 
-		enemy->SetSpriteId(CreateSprite("./images/blue_enemy/blue_enemy_1.png", enemy->GetWidth(), enemy->GetHeight(), true));
+		enemy->SetSpriteId(CreateSprite("./images/blue_enemy/blue_enemy_1.png", enemy->GetWidth(), enemy->GetHeight(), true));*/
 
 		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
@@ -822,7 +826,8 @@ void GameState::CreateEnemies()
 		}
 
 		//initialize position
-		enemy->SetPosition(enemyX, enemyY);
+		//enemy->SetPosition(enemyX, enemyY);
+		enemy->Init(Point2d{ enemyX, enemyY }, Point2d{ 1, 0 }, 26, 30, 1.0f);
 
 		//increment next enemy's x position
 		enemyX += enemy->GetWidth() + 10.0f;

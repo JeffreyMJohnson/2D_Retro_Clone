@@ -7,22 +7,24 @@ int Enemy::activeEnemyCount = 0;
 
 Enemy::Enemy()
 {
-	isActive = true;
-	direction = 1;
+	//isActive = true;
+	//direction = 1;
 	activeEnemyCount++;
 	isAttacking = false;
 	isLeader = false;
 	returnPosition.x = 0;
 	returnPosition.y = 0;
 	//in radians so convert;
-	attackAngle = DegreeToRadians(90.0f);
+	attackAngle = Helper::DegreeToRadians(90.0f);
+	//attackAngle = DegreeToRadians(90.0f);
 	attackRadius = 50.0f;
 	attackState = MOVE;
 	attackExitPoint = Point2d{ 0, 0 };
 	attackExitChosen = false;
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
-	attackDirection = 0;
+	//attackDirection = 0;
+	attackVelocity = Point2d{ 0, 0 };
 	attackSpeed = 5.0f;
 	shootMaxTime = .5f;
 	shootTimer = shootMaxTime;
@@ -35,15 +37,36 @@ Enemy::Enemy()
 	//attackTimer = 5.0f;
 
 }
+
+//Instantiate enemy with sprite
+Enemy::Enemy(const char* filePath, float a_width, float a_height)
+{
+	width = a_width;
+	height = a_height;
+	spriteID = CreateSprite(filePath, a_width, a_height, true);
+	Enemy();
+}
+
+//Initialize enemy with position, velocity, collider radius, health, speed and alive
+void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed)
+{
+	position = a_pos;
+	velocity = a_velocity;
+	collider.radius = a_radius;
+	health = a_health;
+	speed = a_speed;
+	alive = true;
+}
+
 void Enemy::Update(float a_delta)
 {
-	if (isActive && attackState != ATTACK)
+	if (alive && attackState != ATTACK)
 	{
-		position.x += speed * direction * a_delta;
+		position.x += speed * velocity.x * a_delta;
 	}
 	if (isAttacking)
 	{
-		returnPosition.x += speed * direction * a_delta;
+		returnPosition.x += speed * velocity.x * a_delta;
 		//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
 		Attack(a_delta);
 
@@ -73,10 +96,10 @@ void Enemy::Update(float a_delta)
 	}
 }
 
-void Enemy::SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets)
-{
-	enemyBullets = a_enemyBullets;
-}
+//void Enemy::SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets)
+//{
+//	enemyBullets = a_enemyBullets;
+//}
 
 /*
 in order to go negative direction when the circle reaches 0 degrees it will reset to 360 and fail existing test.
@@ -94,7 +117,7 @@ void Enemy::Attack(float timeDelta)
 	case MOVE:
 		if (position.y < returnPosition.y + attackRadius)
 		{
-			position.y += attackSpeed * timeDelta;
+			position.y += attackSpeed * attackVelocity.y * timeDelta;
 		}
 		else
 		{
@@ -109,7 +132,8 @@ void Enemy::Attack(float timeDelta)
 		*/
 		//attackAngle is in radians convert to be in degrees
 		//if (attackAngle <= DegreeToRadians(270.0f))
-		if (fabs((attackAngle - DegreeToRadians(270.0f))) > epsilon)
+		//if (fabs((attackAngle - DegreeToRadians(270.0f))) > epsilon)
+		if (fabs((attackAngle - Helper::DegreeToRadians(270.0f))) > epsilon)
 		{
 			float x = (returnPosition.x + (attackRadius * cos(attackAngle)));
 			float y = (returnPosition.y + (attackRadius * sin(attackAngle)));
@@ -117,14 +141,14 @@ void Enemy::Attack(float timeDelta)
 			float sinA = sin(attackAngle);
 			float angleR = attackAngle;
 			float angleD = RadiansToDegrees(attackAngle);*/
-			attackAngle = attackAngle + DegreeToRadians(.05f) * attackDirection * attackSpeed;
-			if (RadiansToDegrees(attackAngle) <= 0)
+			attackAngle = attackAngle + Helper::DegreeToRadians(.05f) * attackVelocity.y * attackSpeed;
+			if (Helper::RadiansToDegrees(attackAngle) <= 0)
 			{
-				attackAngle = DegreeToRadians(360.0f);
+				attackAngle = Helper::DegreeToRadians(360.0f);
 			}
 			//attackAngle = attackAngle * attackDirection + DegreeToRadians(attackSpeed * timeDelta);
 
-			SetPosition(x, y);
+			position = Point2d{ x, y };
 		}
 		else
 		{
@@ -142,15 +166,13 @@ void Enemy::Attack(float timeDelta)
 			if (position.x < player->GetPosition().x)
 			{
 				//pick to right of player
-				attackDirection = 1;
+				attackVelocity = Point2d{ 1, -1 };
 			}
 			else//enemy to right or equal of player so go left
 			{
-				attackDirection = -1;
+				attackVelocity = Point2d{ -1, -1 };
 			}
-			Point2d exit{ 0, 0 };
-			exit.x = player->GetPosition().x + 100.0f * attackDirection;
-			attackExitPoint = exit;
+			attackExitPoint = Point2d{ player->position.x + 100.0f * attackVelocity.x, 0 };
 			attackExitChosen = true;
 
 			//slope formula -> m = (y1 -y2) / (x1 - x2)
@@ -177,25 +199,30 @@ void Enemy::Attack(float timeDelta)
 		{
 			shootTimer -= timeDelta;
 		}
+
+
 		//increment x
-		if (position.y > attackExitPoint.y && position.x < attackExitPoint.x)
+		//if (position.y > attackExitPoint.y && position.x < attackExitPoint.x)
+		if (position.y > attackExitPoint.y)
 		{
-			float x = position.x + attackSpeed * timeDelta;
+			float x = position.x + attackSpeed * attackVelocity.x * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;
-			position = Point2d{ x, y };
-		}
-		//decrement x
-		else if (position.y > attackExitPoint.y && position.x > attackExitPoint.x)
-		{
-			float x = position.x - attackSpeed * timeDelta;
+			/*float x = position.x + attackSpeed * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;
-			position = Point2d{ x, y };
+			position = Point2d{ x, y };*/
+		//}
+		////decrement x
+		//else if (position.y > attackExitPoint.y && position.x > attackExitPoint.x)
+		//{
+		//	float x = position.x - attackSpeed * timeDelta;
+		//	float y = (attackSlope * x) + attackYIntercept;
+		//	position = Point2d{ x, y };
 		}
 		else
 		{
 			attackExitChosen = false;
 
-			//set enemy x to original position and y to screenheight
+			//set enemy x to original position and y to screen height
 			position = Point2d{ returnPosition.x, screenHeight };
 			attackState = RETURN;
 
@@ -248,7 +275,7 @@ void Enemy::Attack(float timeDelta)
 		//		{
 		//			enemy->attackExitChosen = false;
 
-		//			//set enemy x to original position and y to screenheight
+		//			//set enemy x to original position and y to screen height
 		//			enemy->SetPosition(enemy->GetreturnPosition().x, screenHeight);
 		//			enemy->SetAttackState(RETURN);
 		//		}
@@ -275,7 +302,7 @@ void Enemy::Attack(float timeDelta)
 	}
 
 
-	//initalize data before starting
+	//initialize data before starting
 	/*if (!isAttacking)
 	{
 	attackStartPos.x = x;
@@ -328,7 +355,7 @@ void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_right
 //draw the enemy
 void Enemy::Draw()
 {
-	if (isActive)
+	if (alive)
 	{
 		MoveSprite(spriteID, position.x, position.y);
 		DrawSprite(spriteID);
@@ -348,7 +375,7 @@ void Enemy::CheckCollisions()
 {
 	if (IsCollidedLeftWall() || IsCollidedRightWall())
 	{
-		speed *= -1;
+		velocity.x *= -1;
 		position.y -= height / 2;
 		MoveSprite(spriteID, position.x, position.y);
 	}
@@ -356,25 +383,25 @@ void Enemy::CheckCollisions()
 
 // SETTERS / GETTERS
 
-void Enemy::SetDirection(int a_direction)
-{
-	direction = a_direction;
-}
+//void Enemy::SetDirection(int a_direction)
+//{
+//	direction = a_direction;
+//}
+//
+//int Enemy::GetDirection()
+//{
+//	return direction;
+//}
 
-int Enemy::GetDirection()
-{
-	return direction;
-}
-
-void Enemy::SetSpeed(float a_speed)
-{
-	speed = a_speed;
-}
-
-float Enemy::GetSpeed()
-{
-	return speed;
-}
+//void Enemy::SetSpeed(float a_speed)
+//{
+//	speed = a_speed;
+//}
+//
+//float Enemy::GetSpeed()
+//{
+//	return speed;
+//}
 
 void Enemy::SetLeftMoveExtreme(unsigned int a_leftExtreme)
 {
@@ -406,15 +433,15 @@ int Enemy::GetScoreValue()
 	return scoreValue;
 }
 
-void Enemy::SetIsActive(bool a_isActive)
-{
-	isActive = a_isActive;
-}
-
-bool Enemy::GetIsActive()
-{
-	return isActive;
-}
+//void Enemy::SetIsActive(bool a_isActive)
+//{
+//	isActive = a_isActive;
+//}
+//
+//bool Enemy::GetIsActive()
+//{
+//	return isActive;
+//}
 
 void Enemy::SetAttackAngle(float a_angle)
 {
@@ -510,12 +537,12 @@ bool Enemy::IsCollidedLeftWall()
 	return false;
 }
 
-float Enemy::DegreeToRadians(float angleInDegrees)
-{
-	return angleInDegrees * (PI / 180);
-}
-
-float Enemy::RadiansToDegrees(float angleInRadians)
-{
-	return angleInRadians * (180 / PI);
-}
+//float Enemy::DegreeToRadians(float angleInDegrees)
+//{
+//	return angleInDegrees * (PI / 180);
+//}
+//
+//float Enemy::RadiansToDegrees(float angleInRadians)
+//{
+//	return angleInRadians * (180 / PI);
+//}

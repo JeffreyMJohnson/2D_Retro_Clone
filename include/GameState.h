@@ -70,7 +70,8 @@ private:
 	float attackTimer;
 	float enemyColMinX;
 	float enemyColMaxX;
-	int attackDirection;
+	//int attackDirection;
+	Point2d attackVelocity;
 
 
 	std::vector<Entity*> gameObjects;

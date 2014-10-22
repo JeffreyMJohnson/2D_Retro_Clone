@@ -27,10 +27,7 @@ class Player : public Entity
 {
 public:
 	
-	//Bullet bullets[MAX_BULLETS];
-	Bullet bullet = Bullet("./images/bullet.png", 3, 20);
-
-
+	
 	//Instantiate player with sprite
 	Player(char* filePath, float width, float height);
 
@@ -44,8 +41,6 @@ public:
 	void Shoot();
 
 	//convenience functions
-	/*void SetSize(float a_width, float a_height);
-	void SetPosition(float a_x, float a_y);*/
 	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight);
 	void SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
 
@@ -54,30 +49,8 @@ public:
 	virtual void Draw();
 
 
-	/*
-	Get inactive bullet from bullets array (if any) and initialize with player's current position.
-	*/
-	//void Shoot(unsigned int a_textureID, float _a_delta);
-
-	/*
-	Returns reference to first Bullet object in bullets array that is not active. If all are active
-	returns the first bullet in the array.
-	*/
-	//Bullet& GetInactiveBullet();
-
-	/*
-	Add a score of the given param to the player's score. 
-	param:
-	a_score - int to add to player's score.
-	*/
-	//void AddScore(int a_score);
-
-
-
-	//standard setters/getters
 	
-	/*void SetSpeed(float a_speed);
-	float GetSpeed();*/
+	//standard setters/getters
 
 	void SetMoveLeftKey(unsigned int a_moveKey);
 	unsigned int GetLeftMoveKey();

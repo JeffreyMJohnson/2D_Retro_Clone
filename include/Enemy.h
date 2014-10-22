@@ -12,7 +12,7 @@
 #include <math.h>
 #include <assert.h>
 
-#define PI 3.14159
+//#define PI 3.14159
 
 
 extern const int screenWidth;
@@ -33,6 +33,8 @@ enum attackStates
 class Enemy : public Entity
 {
 public:
+	int health;
+	bool alive;
 
 	static int activeEnemyCount;
 	bool isAttacking;
@@ -41,27 +43,38 @@ public:
 	float attackSpeed;
 
 	Player* player;
-	std::vector<Bullet*>* enemyBullets;
+	//std::vector<Bullet*>* enemyBullets;
 
 	//std::vector<Bullet*> enemyBullets;
 
 	//these need to be hidden and have an easy way to increment the line
 	float attackSlope;
 	float attackYIntercept;
-	int attackDirection;
+	//int attackDirection;
+	Point2d attackVelocity;
 
 	Enemy();
+
+	//Instantiate enemy with sprite
+	Enemy(const char* filePath, float a_width, float a_height);
+
+	//Initialize enemy with position, velocity, collider radius, health, speed and alive
+	void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed);
+
+	//handle shooting
+	void Shoot();
+
 
 	virtual void Update(float delta);
 	virtual void Draw();
 
-	float DegreeToRadians(float angleInDegrees);
-	float RadiansToDegrees(float angleInRadians);
+	//float DegreeToRadians(float angleInDegrees);
+	//float RadiansToDegrees(float angleInRadians);
 
-	void SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets);
+	//void SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets);
 
-	void SetSpeed(float a_speed);
-	float GetSpeed();
+	//void SetSpeed(float a_speed);
+	//float GetSpeed();
 
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
@@ -73,11 +86,11 @@ public:
 
 	//void LoadBullets();
 
-	void SetSpeedX(float a_speedX);
-	float GetSpeedX();
+	//void SetSpeedX(float a_speedX);
+	//float GetSpeedX();
 
-	void SetSpeedY(float a_speedY);
-	float GetSpeedY();
+	//void SetSpeedY(float a_speedY);
+	//float GetSpeedY();
 
 	void SetLeftMoveExtreme(unsigned int a_leftExtreme);
 	unsigned int GetLeftMoveExtreme();
@@ -88,11 +101,11 @@ public:
 	void SetScoreValue(int a_scoreValue);
 	int GetScoreValue();
 
-	void SetDirection(int a_direction);
-	int GetDirection();
+	//void SetDirection(int a_direction);
+	//int GetDirection();
 
-	void SetIsActive(bool a_isActive);
-	bool GetIsActive();
+	//void SetIsActive(bool a_isActive);
+	//bool GetIsActive();
 
 	void SetOriginalPos(Point2d a_point);
 	Point2d GetreturnPosition();
@@ -120,9 +133,9 @@ private:
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 	int scoreValue;
-	bool isActive;
-	float speed;
-	int direction;
+	//bool isActive;
+	//float speed;
+	//int direction;
 	Point2d returnPosition;
 	float attackAngle;
 	float attackRadius;

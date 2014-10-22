@@ -5,6 +5,7 @@
 #include "BaseState.h"
 #include "AIE.h"
 #include "StateMachine.h"
+#include "BulletManager.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Bullet.h"

@@ -53,6 +53,9 @@ void GameState::Initialize()
 {
 	//gameOver = false; 
 
+	//initialize bulletManager static class
+	BulletManager::Init();
+
 	Player* player = new Player("./images/player/galaxian.png", 45.0f, 51.0f);
 	player->Init(Point2d{ screenWidth * 0.5f, 100.0f }, Point2d{ 0, 0 }, 51.0f, 1);
 

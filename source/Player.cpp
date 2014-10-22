@@ -28,6 +28,7 @@ void Player::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_healt
 	health = a_health;
 	speed = 1.0f;
 	alive = true;
+	bullet.Init(a_pos, Point2d{ 0, 1 }, 100.0f, 15.0f, 1);
 
 }
 

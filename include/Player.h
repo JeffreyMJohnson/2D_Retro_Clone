@@ -28,6 +28,8 @@ class Player : public Entity
 public:
 	
 	//Bullet bullets[MAX_BULLETS];
+	Bullet bullet = Bullet("./images/bullet.png", 3, 20);
+
 
 	//Instantiate player with sprite
 	Player(char* filePath, float width, float height);

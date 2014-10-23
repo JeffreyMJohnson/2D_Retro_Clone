@@ -38,19 +38,14 @@ public:
 
 	static int activeEnemyCount;
 	bool isAttacking;
-	bool isLeader;
 	bool attackExitChosen;
 	float attackSpeed;
 
 	Player* player;
-	//std::vector<Bullet*>* enemyBullets;
-
-	//std::vector<Bullet*> enemyBullets;
 
 	//these need to be hidden and have an easy way to increment the line
 	float attackSlope;
 	float attackYIntercept;
-	//int attackDirection;
 	Point2d attackVelocity;
 
 	Enemy();
@@ -68,29 +63,10 @@ public:
 	virtual void Update(float delta);
 	virtual void Draw();
 
-	//float DegreeToRadians(float angleInDegrees);
-	//float RadiansToDegrees(float angleInRadians);
-
-	//void SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets);
-
-	//void SetSpeed(float a_speed);
-	//float GetSpeed();
-
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
-
-	////move enemy 
-	//void Move(float a_speed, int a_direction, float a_delta);
-
+	
 	void Attack(float timeDelta);
-
-	//void LoadBullets();
-
-	//void SetSpeedX(float a_speedX);
-	//float GetSpeedX();
-
-	//void SetSpeedY(float a_speedY);
-	//float GetSpeedY();
 
 	void SetLeftMoveExtreme(unsigned int a_leftExtreme);
 	unsigned int GetLeftMoveExtreme();
@@ -100,12 +76,6 @@ public:
 
 	void SetScoreValue(int a_scoreValue);
 	int GetScoreValue();
-
-	//void SetDirection(int a_direction);
-	//int GetDirection();
-
-	//void SetIsActive(bool a_isActive);
-	//bool GetIsActive();
 
 	void SetOriginalPos(Point2d a_point);
 	Point2d GetreturnPosition();
@@ -133,9 +103,6 @@ private:
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 	int scoreValue;
-	//bool isActive;
-	//float speed;
-	//int direction;
 	Point2d returnPosition;
 	float attackAngle;
 	float attackRadius;
@@ -147,9 +114,6 @@ private:
 
 
 	float GetSlopeOfLine(Point2d point1, Point2d point2);
-
-	//Bullet* GetInactiveBullet();
-
 
 
 	/*

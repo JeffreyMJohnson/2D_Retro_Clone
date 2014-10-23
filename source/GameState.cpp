@@ -97,16 +97,18 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 
 			//set the leader
 			SetAttackLeader();
+			attackingEnemy = 0;
 		}
 	}
 
 
 	if (sendAttack)
 	{
-		if (attackingEnemies.size() == 2 && attackingEnemies[1]->GetAttackState() == WAIT && attackingEnemies[0]->GetAttackState() == ATTACK)
+		sendNextEnemy();
+		/*if (attackingEnemies.size() == 2 && attackingEnemies[1]->GetAttackState() == WAIT && attackingEnemies[0]->GetAttackState() == ATTACK)
 		{
 			attackingEnemies[1]->SetAttackState(MOVE);
-		}
+		}*/
 	}
 
 	for (auto object : gameObjects)
@@ -330,8 +332,9 @@ void GameState::ChooseAttackers()
 
 /*
 Helper function for attacking enemies
-this will set the isLeader flag on enemy with highest y value of attacking enemies
+this will set all enemies in array to attack state of WAIT unless it's the first enemy
 constraint: attackingEnemies vector must have size > 0.
+This function runs once per attack cycle;
 */
 void GameState::SetAttackLeader()
 {
@@ -339,17 +342,38 @@ void GameState::SetAttackLeader()
 
 	for (int i = 0; i < attackingEnemies.size(); i++)
 	{
-		if (i == 0)
+		if (i != 0)
 		{
-			attackingEnemies[i]->isLeader = true;
-		}
-		else
-		{
-			attackingEnemies[i]->isLeader = false;
 			attackingEnemies[i]->SetAttackState(WAIT);
 		}
 	}
 
+}
+
+/*Helper function for attacking enemies
+will check if the currently attacking enemy has moved to ATTACK state and if it is will change attack state
+of next enemy in list to MOVE if there is one.
+This function ran every frame*/
+void GameState::sendNextEnemy()
+{
+	//if last enemy attacking return
+	if (attackingEnemy + 1 == attackingEnemies.size())
+		return;
+
+	//if attacking enemy not done moving return
+	if (attackingEnemies[attackingEnemy]->GetAttackState() == MOVE)
+		return;
+
+	//if here there must be at least one more enemy waiting to attack
+	for (int i = attackingEnemy; i < attackingEnemies.size(); i++)
+	{
+		//if current attacking enemy switches to attack state switch next enemy to move
+		if (attackingEnemies[i]->GetAttackState() == ATTACK)
+		{
+			attackingEnemy++;
+			attackingEnemies[attackingEnemy]->SetAttackState(MOVE);
+		}
+	}
 }
 
 /*

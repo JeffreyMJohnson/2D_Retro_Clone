@@ -70,10 +70,17 @@ private:
 
 	/*
 	Helper function for attacking enemies
-	this will set the isLeader flag on enemy with highest y value of attacking enemies
+	this will set all enemies in array to attack state of WAIT unless it's the first enemy
 	constraint: attackingEnemies vector must have size > 0.
+	This function runs once per attack cycle;
 	*/
 	void SetAttackLeader();
+
+	/*Helper function for attacking enemies
+	will check if the currently attacking enemy has moved to ATTACK state and if it is will change attack state
+	of next enemy in list to MOVE if there is one.
+	This function ran every frame*/
+	void sendNextEnemy();
 
 	/*
 	helper function for attacking enemies
@@ -109,6 +116,7 @@ private:
 
 
 	bool sendAttack;
+	int attackingEnemy;
 	float attackTimer;
 	float enemyColMinX;
 	float enemyColMaxX;

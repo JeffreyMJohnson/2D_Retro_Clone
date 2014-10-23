@@ -9,7 +9,7 @@ using namespace std;
 
 extern const int screenWidth = 600;
 extern const int screenHeight = 800;
-extern const int NUM_ENEMYS = 18;
+extern const int NUM_ENEMYS = 36;
 
 
 int main( int argc, char* argv[] )

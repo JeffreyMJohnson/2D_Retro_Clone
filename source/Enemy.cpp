@@ -14,7 +14,6 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 
 	activeEnemyCount++;
 	isAttacking = false;
-	isLeader = false;
 	returnPosition.x = 0;
 	returnPosition.y = 0;
 	//in radians so convert;
@@ -64,38 +63,10 @@ void Enemy::Update(float a_delta)
 		//go through attack phases
 		Attack(a_delta);
 
-		//if (isActive && attackState != ATTACK)
-		//{
-		//	position.x += speed * direction * a_delta;
-		//}
-		//if (isAttacking)
-		//{
-		//	returnPosition.x += speed * direction * a_delta;
-		//	//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
-		//	Attack(a_delta);
-		//}
-
-		//update bullets
-		if (attackState == ATTACK)
-		{
-
-			//for (auto bullet : *enemyBullets)
-			//{
-			//	if (bullet->isActive)
-			//	{
-			//		bullet->Update(a_delta);
-			//	}
-			//}
-		}
 	}
 	//set collider center after each update to sync to position.;
 	collider.center = position;
 }
-
-//void Enemy::SetEnemyBullets(std::vector<Bullet*>* a_enemyBullets)
-//{
-//	enemyBullets = a_enemyBullets;
-//}
 
 /*
 in order to go negative direction when the circle reaches 0 degrees it will reset to 360 and fail existing test.
@@ -108,7 +79,7 @@ void Enemy::Attack(float timeDelta)
 	switch (attackState)
 	{
 	case WAIT:
-		std::cout << "waiting....\n";
+		//std::cout << "waiting....\n";
 		break;
 	case MOVE:
 		if (position.y < returnPosition.y + attackRadius)
@@ -217,59 +188,6 @@ void Enemy::Attack(float timeDelta)
 
 		}
 
-
-
-
-		//if (!enemy->attackExitChosen && enemy->GetPosition().x < player->GetPosition().x)
-		//		{
-		//			//pick to the right of the player 
-		//			Point2d exit{ 0, 0 };
-		//			exit.x = player->GetPosition().x + 100.0f;
-		//			enemy->SetAttackExitPoint(exit);
-		//			enemy->attackExitChosen = true;
-		//		}
-		//		else if (!enemy->attackExitChosen) //enemy to right or equal of player so go left
-		//		{
-		//			Point2d exit{ 0, 0 };
-		//			exit.x = player->GetPosition().x - 100.0f;
-		//			enemy->SetAttackExitPoint(exit);
-		//			enemy->attackExitChosen = true;
-		//		}
-
-		//		//TODO: get this refactored so only call once per attack sequence
-		//		//slope formula - m = (y1 -y2) / (x1 - x2)
-		//		m = GetSlopeOfLine(enemy->GetPosition(), enemy->GetAttackExitPoint());
-
-		//		//TODO: get this refactored so only call once per attack sequence
-		//		//point-slope formula - y - y1 = m * (x - x1) choose any point on line as (x1, y1)
-		//		//b = y - m * x
-		//		//y = m * x + b
-		//		b = enemy->GetPosition().y - (m * enemy->GetPosition().x);
-
-		//		//increment x
-		//		if (enemy->GetPosition().y > enemy->GetAttackExitPoint().y && enemy->GetPosition().x < enemy->GetAttackExitPoint().x)
-		//		{
-		//			float x = enemy->GetPosition().x + enemy->GetSpeed() * timeDelta;
-		//			float y = (m * x) + b;
-		//			enemy->SetPosition(x, y);
-		//		}
-		//		//decrement x
-		//		else if (enemy->GetPosition().y > enemy->GetAttackExitPoint().y && enemy->GetPosition().x > enemy->GetAttackExitPoint().x)
-		//		{
-		//			float x = enemy->GetPosition().x - enemy->GetSpeed() * timeDelta;
-		//			float y = (m * x) + b;
-		//			enemy->SetPosition(x, y);
-		//		}
-		//		else
-		//		{
-		//			enemy->attackExitChosen = false;
-
-		//			//set enemy x to original position and y to screen height
-		//			enemy->SetPosition(enemy->GetreturnPosition().x, screenHeight);
-		//			enemy->SetAttackState(RETURN);
-		//		}
-
-
 		break;
 	case RETURN:
 		attackVelocity = Point2d{ attackVelocity.x, -1 };
@@ -283,43 +201,13 @@ void Enemy::Attack(float timeDelta)
 		{
 			isAttacking = false;
 			attackState = MOVE;
-			std::cout << "done";
 		}
 
 
 
 		break;
 	}
-
-
-	//initialize data before starting
-	/*if (!isAttacking)
-	{
-	attackStartPos.x = x;
-	attackStartPos.y = y;
-	}
-	else
-	{
-	while (y - attackStartPos.y < 100)
-	{
-	y += speed * timeDelta;
-	}
-	}*/
-
-
-
-
 }
-
-//Bullet* Enemy::GetInactiveBullet()
-//{
-//	for (Bullet* a_bullet : *enemyBullets)
-//	{
-//		if (!a_bullet->isActive)
-//			return a_bullet;
-//	}
-//	return enemyBullets->front();
-//}
 
 float Enemy::GetSlopeOfLine(Point2d point1, Point2d point2)
 {
@@ -332,15 +220,6 @@ void Enemy::setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_right
 	leftMovementExtreme = a_leftExtreme;
 	rightMovementExtreme = a_rightExtreme;
 }
-
-////move the enemy 
-//void Enemy::Move(float a_speed, int a_direction, float a_delta)
-//{
-//	//changed like lecture example
-//	x += a_speed * a_direction * a_delta;
-//
-//
-//}
 
 //draw the enemy
 void Enemy::Draw()
@@ -373,26 +252,6 @@ void Enemy::CheckCollisions()
 
 // SETTERS / GETTERS
 
-//void Enemy::SetDirection(int a_direction)
-//{
-//	direction = a_direction;
-//}
-//
-//int Enemy::GetDirection()
-//{
-//	return direction;
-//}
-
-//void Enemy::SetSpeed(float a_speed)
-//{
-//	speed = a_speed;
-//}
-//
-//float Enemy::GetSpeed()
-//{
-//	return speed;
-//}
-
 void Enemy::SetLeftMoveExtreme(unsigned int a_leftExtreme)
 {
 	leftMovementExtreme = a_leftExtreme;
@@ -422,16 +281,6 @@ int Enemy::GetScoreValue()
 {
 	return scoreValue;
 }
-
-//void Enemy::SetIsActive(bool a_isActive)
-//{
-//	isActive = a_isActive;
-//}
-//
-//bool Enemy::GetIsActive()
-//{
-//	return isActive;
-//}
 
 void Enemy::SetAttackAngle(float a_angle)
 {
@@ -526,13 +375,3 @@ bool Enemy::IsCollidedLeftWall()
 	}
 	return false;
 }
-
-//float Enemy::DegreeToRadians(float angleInDegrees)
-//{
-//	return angleInDegrees * (PI / 180);
-//}
-//
-//float Enemy::RadiansToDegrees(float angleInRadians)
-//{
-//	return angleInRadians * (180 / PI);
-//}

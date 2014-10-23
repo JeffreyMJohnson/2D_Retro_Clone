@@ -261,7 +261,9 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 		enemy->alive = false;
 		BulletManager::playerBullet->alive = false;
 
-		//need to add score here
+		score += enemy->health;
+		if (score > highScore)
+			highScore = score;
 	}
 }
 

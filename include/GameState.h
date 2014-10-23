@@ -13,6 +13,7 @@
 #include <string>
 #include <time.h>
 #include <assert.h>
+#include <iostream>
 
 
 
@@ -23,63 +24,101 @@ public:
 	GameState();
 	~GameState();
 
+	/*
+	Called by machine state once on starting this state
+	*/
 	void Initialize();
+
+	/*
+	called by machine state each frame
+	*/
 	void Update(float a_timeStep, StateMachine* a_SMPointer);
+
+	/*
+	called by machine state each frame
+	*/
 	void Draw();
+
+	/*
+	this is called by state machine when this state is removed from stack, cleans up objects on
+	the heap instead of class destructor
+	*/
 	void Destroy();
 
 private:
 	const float attackTimeMax = 2.0f;
 
-
+	/*
+	Creates each enemy object, setting their position in the group, and loading them in game objects array
+	*/
 	void CreateEnemies();
-	void MoveEnemies(float a_speed, int a_direction, float a_delta);
-	void DrawEnemies();
 
-	void PlayerLogic(Player* a_player, float a_delta);
+	/*
+	enemy group moving logic, enemy bullet collision
+	*/
 	void EnemyLogic(Enemy* enemy, float timeDelta);
+
+	/*
+	bullet player collision logic, and enemy player collision logic
+	*/
+	void PlayerLogic(Player* a_player, float a_delta);
+
+	/*
+	Helper function for attacking enemies
+	*/
+	void ChooseAttackers();
+
+	/*
+	Helper function for attacking enemies
+	this will set the isLeader flag on enemy with highest y value of attacking enemies
+	constraint: attackingEnemies vector must have size > 0.
+	*/
+	void SetAttackLeader();
+
+	/*
+	helper function for attacking enemies
+	*/
+	int GetRandomDirection();
+
+	/*
+	helper function for attacking enemies
+	returns max and min y position values for all enemies
+	*/
+	void GetEnemyColX(float& minX, float& maxX);
+
+	/*
+	invert the velocity on every alive enemy
+	*/
 	void ReverseEnemies();
 
-	void DrawUI();
-
-	bool sendAttack;
-
+	/*
+	Helper file for attacking player
+	*/
 	void TimerTick(float timeDelta);
 
+	/*
+	Helper function for attacking player
+	*/
 	void GetColExtremes(float& minX, float& maxX);
 
 	void GetAttackDirection();
 
-	void ChooseAttackers();
-
-	void SetAttackLeader();
-
-	int GetRandomDirection();
-
-	//returns max and min y position values for all enemies
-	void GetEnemyColX(float& minX, float& maxX);
-
-
-	bool CheckCollision(float x1, float y1, float x2, float y2, float distance);
+	void DrawUI();
 
 	char* ScoreToString(int a_score);
 
 
+	bool sendAttack;
 	float attackTimer;
 	float enemyColMinX;
 	float enemyColMaxX;
-	//int attackDirection;
 	Point2d attackVelocity;
-
 
 	std::vector<Entity*> gameObjects;
 	std::vector<Enemy*> attackingEnemies;
 
-	//Bullet* bullet;
 	//offset for bullet position in relation to player
 	float bulletYOffset;
-
-
 	std::string fontFile;
 
 	const char* scoreLabel;
@@ -99,8 +138,6 @@ private:
 
 	int playerLives;
 	unsigned int playerLifeTextureID;
-
-	//float attackAngle = 90.0f;
 
 	/*
 	char p1Score_s[20];

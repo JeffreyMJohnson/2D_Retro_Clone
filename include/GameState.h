@@ -28,8 +28,6 @@ public:
 	void Draw();
 	void Destroy();
 
-	std::vector<Bullet*> enemyBullets;
-
 private:
 	const float attackTimeMax = 2.0f;
 
@@ -38,7 +36,7 @@ private:
 	void MoveEnemies(float a_speed, int a_direction, float a_delta);
 	void DrawEnemies();
 
-	//void PlayerLogic(Player* a_player, float a_delta);
+	void PlayerLogic(Player* a_player, float a_delta);
 	void EnemyLogic(Enemy* enemy, float timeDelta);
 	void ReverseEnemies();
 

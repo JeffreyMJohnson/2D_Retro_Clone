@@ -9,12 +9,13 @@ public:
 
 
 	static Bullet* playerBullet;
+	static std::vector<Bullet*> enemyBullets;
 
 	static void Init()
 	{
 		for (int i = 0; i < 100; i++)
 		{
-			bullets.emplace_back(new Bullet("./images/bullet.png", 3, 20));
+			enemyBullets.emplace_back(new Bullet("./images/bullet.png", 3, 20));
 		}
 
 		playerBullet = new Bullet("./images/bullet.png", 3, 15);
@@ -26,7 +27,7 @@ public:
 
 		if (type == ENEMY)
 		{
-			for (Bullet* bullet : bullets)
+			for (Bullet* bullet : enemyBullets)
 			{
 				if (!bullet->alive)
 				{
@@ -55,7 +56,7 @@ public:
 
 
 
-		for (Bullet* bullet : bullets)
+		for (Bullet* bullet : enemyBullets)
 		{
 			if (bullet->alive)
 			{
@@ -70,13 +71,13 @@ public:
 	{
 		for (int i = 0; i < 100; i++)
 		{
-			delete bullets[i];
+			delete enemyBullets[i];
 		}
 		delete playerBullet;
 	}
 
 private:
-	static std::vector<Bullet*> bullets;
+	
 
 };
 

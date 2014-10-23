@@ -4,40 +4,6 @@
 
 int Enemy::activeEnemyCount = 0;
 
-
-//Enemy::Enemy()
-//{
-//	//isActive = true;
-//	//direction = 1;
-//	activeEnemyCount++;
-//	isAttacking = false;
-//	isLeader = false;
-//	returnPosition.x = 0;
-//	returnPosition.y = 0;
-//	//in radians so convert;
-//	attackAngle = Helper::DegreeToRadians(90.0f);
-//	//attackAngle = DegreeToRadians(90.0f);
-//	attackRadius = 50.0f;
-//	attackState = MOVE;
-//	attackExitPoint = Point2d{ 0, 0 };
-//	attackExitChosen = false;
-//	attackSlope = 0.0f;
-//	attackYIntercept = 0.0f;
-//	//attackDirection = 0;
-//	attackVelocity = Point2d{ 0, 0 };
-//	attackSpeed = 5.0f;
-//	shootMaxTime = .5f;
-//	shootTimer = shootMaxTime;
-//
-//	player = nullptr;
-//
-//	//LoadBullets();
-//
-//	//reset in GameState.cpp enemyLogic() function
-//	//attackTimer = 5.0f;
-//
-//}
-
 //Instantiate enemy with sprite
 Enemy::Enemy(const char* filePath, float a_width, float a_height)
 {
@@ -63,7 +29,7 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	//attackDirection = 0;
 	attackVelocity = Point2d{ 0, 0 };
 	attackSpeed = 5.0f;
-	shootMaxTime = .5f;
+	shootMaxTime = 7.0f;
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
@@ -87,7 +53,7 @@ void Enemy::Update(float a_delta)
 	{
 		position.x += speed * velocity.x * a_delta;
 	}
-	if (isAttacking)
+	if (isAttacking && alive)
 	{
 		//move position with the group so it's synced
 		returnPosition.x += speed * velocity.x * a_delta;
@@ -184,6 +150,8 @@ void Enemy::Attack(float timeDelta)
 		{
 			attackAngle = 90.0f;
 			attackState = ATTACK;
+			//change velocity to downward y for return phase
+			attackVelocity = Point2d{ attackVelocity.x, -1 };
 		}
 		//		break;
 		break;
@@ -216,19 +184,17 @@ void Enemy::Attack(float timeDelta)
 			attackYIntercept = b;
 		}
 
-		//if (shootTimer <= 0)
-		//{
-		//	std::cout << "shoot\n";
-		//	/*Bullet* b = GetInactiveBullet();
-		//	b->SetPosition(position.x, position.y - b->GetHeight() * 0.5f);*/
-		//	//b->isActive = true;
-		//	shootTimer = shootMaxTime;
+		if (shootTimer <= 0)
+		{
+			std::cout << "shoot\n";
+			BulletManager::SetBullet(ENEMY, position, Point2d{ 0, -1 }, 50.0f, 1);
+			shootTimer = shootMaxTime;
 
-		//}
-		//else
-		//{
-		//	shootTimer -= timeDelta;
-		//}
+		}
+		else
+		{
+			shootTimer -= timeDelta;
+		}
 
 
 		//increment x
@@ -239,15 +205,7 @@ void Enemy::Attack(float timeDelta)
 			float y = (attackSlope * x) + attackYIntercept;
 			position = Point2d{ x, y };
 			/*float x = position.x + attackSpeed * timeDelta;
-			float y = (attackSlope * x) + attackYIntercept;
-			position = Point2d{ x, y };*/
-		//}
-		////decrement x
-		//else if (position.y > attackExitPoint.y && position.x > attackExitPoint.x)
-		//{
-		//	float x = position.x - attackSpeed * timeDelta;
-		//	float y = (attackSlope * x) + attackYIntercept;
-		//	position = Point2d{ x, y };
+			float y = (attackSlope * x) + attackYIntercept;*/
 		}
 		else
 		{
@@ -314,11 +272,12 @@ void Enemy::Attack(float timeDelta)
 
 		break;
 	case RETURN:
+		attackVelocity = Point2d{ attackVelocity.x, -1 };
 		if (position.y > returnPosition.y)
 		{
 			float y = position.y;
 			float returnY = returnPosition.y;
-			position = Point2d{ position.x, position.y - attackSpeed * timeDelta };
+			position = Point2d{ position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta) };
 		}
 		else
 		{

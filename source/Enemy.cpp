@@ -26,8 +26,8 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	attackYIntercept = 0.0f;
 	//attackDirection = 0;
 	attackVelocity = Point2d();
-	attackSpeed = 15.0f;
-	shootMaxTime = 5.0f;
+	attackSpeed = 20.0f;
+	shootMaxTime = 3.0f;
 	shootTimer = shootMaxTime;
 
 	player = nullptr;

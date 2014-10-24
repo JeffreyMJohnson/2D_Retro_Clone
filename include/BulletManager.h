@@ -19,7 +19,7 @@ public:
 		}
 
 		playerBullet = new Bullet("./images/bullet.png", 3, 15);
-		playerBullet->Init(Point2d{ 0, 0 }, Point2d{ 0, 1 }, 0, 1, 1);
+		playerBullet->Init(Point2d(), Point2d(0, 1), 0, 1, 1);
 	}
 
 	static bool SetBullet(TYPE type, Point2d a_pos, Point2d a_velocity, float a_speed, int a_health)
@@ -58,6 +58,17 @@ public:
 
 		for (Bullet* bullet : enemyBullets)
 		{
+			//need to recycle bullets off screen
+			if (bullet->alive)
+			{
+				if (bullet->position.y > screenHeight + bullet->height * 0.5f){
+					bullet->alive = false;
+				}
+				if (bullet->position.y < bullet->height * 0.5f)
+				{
+					bullet->alive = false;
+				}
+			}
 			if (bullet->alive)
 			{
 				bullet->Update(a_delta);

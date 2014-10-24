@@ -24,12 +24,13 @@ GameState::GameState()
 	enemyColMinX = 0.0f;
 	enemyColMaxX = 0.0f;
 
+	player = nullptr;
+
 	//need to be a positive y for first stage of attack
 	attackVelocity = Point2d(-1, 1);
 	attackingEnemy = nullptr;
 
-	restartPause = false;
-	restartTimer = 10.0f;
+	restartTimer = 15.0f;
 	currentRestartTime = 0.0f;
 
 
@@ -50,7 +51,7 @@ void GameState::Initialize()
 	//initialize bulletManager static class
 	BulletManager::Init();
 
-	Player* player = new Player("./images/player/galaxian.png", 45.0f, 51.0f);
+	player = new Player("./images/player/galaxian.png", 45.0f, 51.0f);
 	player->Init(Point2d(screenWidth * 0.5f, 100.0f), Point2d(), 10.0f, 1);
 
 	gameObjects.push_back(player);
@@ -83,14 +84,26 @@ called by machine state each frame
 */
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
-	if (!sendAttack)
+	//if here and player dead must be more lives so run timer to start again
+	if (!player->alive)
 	{
-		//don't call timerTick for attacking if pausing for restart
-		if (!restartPause)
+		//run pause timer here
+		if (currentRestartTime < restartTimer)
 		{
-			//will set sendAttack to true if it's time
-			TimerTick(a_timestep);
+			currentRestartTime += a_timestep;
 		}
+		else
+		{
+			currentRestartTime = 0;
+			player->alive = true;
+		}
+	}
+
+	//only send attacks when player alive and previous attack done
+	if (player->alive && !sendAttack)
+	{
+		//will set sendAttack to true if it's time
+		TimerTick(a_timestep);
 
 
 		//if timer set attack this will run once per attack
@@ -247,6 +260,7 @@ enemy group moving logic, enemy bullet collision
 */
 void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 {
+	//BUG::this is just broken, have hacked a fix elsewhere, but this is the problem child enemy group movement
 	//enemies who aren't attacking  moving left and right max and min logic
 	if (enemy->GetPosition().x > screenWidth * 0.85f && !enemy->isAttacking)
 	{
@@ -275,10 +289,6 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	{
 
 		enemy->alive = false;
-		if (enemy->isAttacking)
-		{
-			//RemoveAttackingEnemy(*enemy);
-		}
 
 		BulletManager::playerBullet->alive = false;
 
@@ -293,40 +303,39 @@ bullet player collision logic, and enemy player collision logic
 */
 void GameState::PlayerLogic(Player* a_player, float a_delta)
 {
-	//check if player hit by bullet
-	for (Bullet* enemyBullet : BulletManager::enemyBullets)
+	if (a_player->alive)
 	{
-		if (enemyBullet->alive)
+		//check if player hit by bullet
+		for (Bullet* enemyBullet : BulletManager::enemyBullets)
 		{
-			if (enemyBullet->collider.isCollided(a_player->collider))
+			if (enemyBullet->alive)
 			{
-				enemyBullet->alive = false;
-				a_player->alive = false;
-			}
-		}
-
-	}
-	//check if player hit by enemy
-	for (Entity* entity : gameObjects)
-	{
-		if (dynamic_cast<Enemy*>(entity) != 0)
-		{
-			Enemy* enemy = dynamic_cast<Enemy*>(entity);
-			if (enemy->alive && enemy->isAttacking)
-			{
-				if (a_player->collider.isCollided(enemy->collider))
+				if (enemyBullet->collider.isCollided(a_player->collider))
 				{
-					enemy->alive = false;
+					enemyBullet->alive = false;
 					a_player->alive = false;
+					PlayerDeath(a_player);
+				}
+			}
 
+		}
+		//check if player hit by enemy
+		for (Entity* entity : gameObjects)
+		{
+			if (dynamic_cast<Enemy*>(entity) != 0)
+			{
+				Enemy* enemy = dynamic_cast<Enemy*>(entity);
+				if (enemy->alive && enemy->isAttacking)
+				{
+					if (a_player->collider.isCollided(enemy->collider))
+					{
+						enemy->alive = false;
+						a_player->alive = false;
+						PlayerDeath(a_player);
+					}
 				}
 			}
 		}
-	}
-
-	if (!a_player->alive)
-	{
-		PlayerDeath(a_player);
 	}
 }
 
@@ -339,43 +348,12 @@ void GameState::PlayerDeath(Player* player)
 	if (playerLives > 0)
 	{
 		playerLives--;
-		//TODO::pause for x seconds then restart
-		//restartPause = true;
-		player->alive = true;
 	}
 	else
 	{
 		//TODO::switch to game over state when there is one
 		std::cout << "game over";
-		//system("pause");
 	}
-}
-
-/*
-remove enemy from attacking enemies list with same position as given enemy
-*/
-bool GameState::RemoveAttackingEnemy(Enemy& a_enemy)
-{
-	assert(attackingEnemies.size() > 0);
-	std::vector<Enemy*>::iterator index = attackingEnemies.end();
-	for (std::vector<Enemy*>::iterator it = attackingEnemies.begin(); it != attackingEnemies.end(); it++)
-	{
-		//iterator is a pointer to element in vector which is pointer to Enemy, need to double dereference
-		//to get object for compare. wait, what?
-		if (**(it) == a_enemy)
-		{
-			index = it;
-			break;
-		}
-	}
-	if (index == attackingEnemies.end())
-	{
-		return false;
-	}
-
-	attackingEnemies.erase(index);
-	return true;
-
 }
 
 /*

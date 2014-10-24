@@ -45,7 +45,7 @@ public:
 	*/
 	void Destroy();
 
-	bool restartPause;
+	Player* player;
 	float restartTimer;
 	float currentRestartTime;
 	
@@ -74,11 +74,6 @@ private:
 	will switch state to game over if was last life otherwise will decrement lives remaining
 	*/
 	void PlayerDeath(Player* player);
-
-	/*
-	remove enemy from attacking enemies list with same position as given enemy
-	*/
-	bool RemoveAttackingEnemy(Enemy& a_enemy);
 
 	/*
 	Helper function for attacking enemies

@@ -17,17 +17,15 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	returnPosition = Point2d();
 	//in radians so convert;
 	attackAngle = Helper::DegreeToRadians(90.0f);
-	//attackAngle = DegreeToRadians(90.0f);
 	attackRadius = 50.0f;
 	attackState = MOVE;
 	attackExitPoint = Point2d();
 	attackExitChosen = false;
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
-	//attackDirection = 0;
 	attackVelocity = Point2d();
-	attackSpeed = 20.0f;
-	shootMaxTime = 3.0f;
+	attackSpeed = 15.0f;
+	shootMaxTime = 1.75f;
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
@@ -114,8 +112,6 @@ void Enemy::Attack(float timeDelta)
 		y = a + d * sin(theta)
 		*/
 		//attackAngle is in radians convert to be in degrees
-		//if (attackAngle <= DegreeToRadians(270.0f))
-		//if (fabs((attackAngle - DegreeToRadians(270.0f))) > epsilon)
 		if (fabs((attackAngle - Helper::DegreeToRadians(270.0f))) > epsilon)
 		{
 			float x = (returnPosition.x + (attackRadius * cos(attackAngle)));
@@ -129,7 +125,6 @@ void Enemy::Attack(float timeDelta)
 			{
 				attackAngle = Helper::DegreeToRadians(360.0f);
 			}
-			//attackAngle = attackAngle * attackDirection + DegreeToRadians(attackSpeed * timeDelta);
 
 			position = Point2d(x, y);
 		}
@@ -140,7 +135,6 @@ void Enemy::Attack(float timeDelta)
 			//change velocity to downward y for return phase
 			attackVelocity = Point2d(attackVelocity.x, -1);
 		}
-		//		break;
 		break;
 	case ATTACK:
 		assert(player != nullptr && player != 0);
@@ -173,8 +167,8 @@ void Enemy::Attack(float timeDelta)
 
 		if (shootTimer <= 0)
 		{
-			std::cout << "shoot\n";
-			BulletManager::SetBullet(ENEMY, position, Point2d(0, -1), 50.0f, 1);
+			//std::cout << "shoot\n";
+			BulletManager::SetBullet(ENEMY, position, Point2d(0, -1), 75.0f, 1);
 			shootTimer = shootMaxTime;
 
 		}
@@ -191,8 +185,6 @@ void Enemy::Attack(float timeDelta)
 			float x = position.x + attackSpeed * attackVelocity.x * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;
 			position = Point2d(x, y);
-			/*float x = position.x + attackSpeed * timeDelta;
-			float y = (attackSlope * x) + attackYIntercept;*/
 		}
 		else
 		{
@@ -211,8 +203,8 @@ void Enemy::Attack(float timeDelta)
 		{
 			float y = position.y;
 			float returnY = returnPosition.y;
-			//position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
-			position = Point2d(returnPosition.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
+			position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
+			//position = Point2d(returnPosition.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
 		}
 		else
 		{

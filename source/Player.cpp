@@ -65,7 +65,7 @@ void Player::Input()
 
 	}
 
-	if (IsKeyDown(GLFW_KEY_SPACE))
+	if (!BulletManager::playerBullet->alive && IsKeyDown(GLFW_KEY_SPACE))
 	{
 		Shoot();
 	}
@@ -92,28 +92,42 @@ void Player::SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_righ
 
 void Player::Update(float a_delta)
 {
-	Input();
-
-	position.x += velocity.x * speed * a_delta;
-	position.y += velocity.y * speed * a_delta;
-
-	MoveSprite(spriteID, position.x, position.y);
-
-	if (!BulletManager::playerBullet->alive)
+	if (alive)
 	{
-		//set bullet makes bullet alive but want it dead here until player shoots
-		BulletManager::SetBullet(PLAYER, Point2d(position.x, (position.y + 30)), Point2d(), 100, 1);
-		BulletManager::playerBullet->alive = false;
-	}
+		Input();
 
-	collider.center = position;
+		position.x += velocity.x * speed * a_delta;
+		position.y += velocity.y * speed * a_delta;
+
+		MoveSprite(spriteID, position.x, position.y);
+
+		if (!BulletManager::playerBullet->alive)
+		{
+			//set bullet makes bullet alive but want it dead here until player shoots
+			BulletManager::SetBullet(PLAYER, Point2d(position.x, (position.y + 30)), Point2d(), 100, 1);
+			BulletManager::playerBullet->alive = false;
+		}
+
+		collider.center = position;
+	}
+	else
+	{
+		//move to original position
+		position = Point2d(screenWidth * 0.5f, 100.0f);
+		MoveSprite(spriteID, position.x, position.y);
+		collider.center = position;
+	}
 
 }
 
 void Player::Draw()
 {
 	//MoveSprite(spriteID, position.x, position.y);
-	DrawSprite(spriteID);
+	if (alive)
+	{
+		DrawSprite(spriteID);
+	}
+
 }
 
 void Player::SetMoveLeftKey(unsigned int a_moveKey)

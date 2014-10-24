@@ -383,7 +383,8 @@ Helper function for attacking enemies
 */
 void GameState::ChooseAttackers()
 {
-	float delta = .001;
+	//HACK::using float math with large delta because of problem keeping attacking enemy starting positions synced.  Not good, needs to be fixed.
+	float delta = 5.0f;
 	for (auto entity : gameObjects)
 	{
 		if (dynamic_cast<Enemy*>(entity) != 0)
@@ -449,6 +450,7 @@ bool GameState::lastEnemyReturned()
 	}
 	//no one alive and attacking so either all dead or all not attacking so clear list and return true
 	attackingEnemies.clear();
+	attackingEnemy = nullptr;
 	return true;
 }
 

@@ -14,8 +14,7 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 
 	activeEnemyCount++;
 	isAttacking = false;
-	returnPosition.x = 0;
-	returnPosition.y = 0;
+	returnPosition = Point2d();
 	//in radians so convert;
 	attackAngle = Helper::DegreeToRadians(90.0f);
 	//attackAngle = DegreeToRadians(90.0f);
@@ -62,7 +61,7 @@ void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health
 }
 
 void Enemy::Update(float a_delta)
-{	
+{
 	//keep pace with the other moving group except when attack mode
 	if (alive && attackState != ATTACK)
 	{
@@ -212,12 +211,19 @@ void Enemy::Attack(float timeDelta)
 		{
 			float y = position.y;
 			float returnY = returnPosition.y;
-			position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
+			//position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
+			position = Point2d(returnPosition.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
 		}
 		else
 		{
 			isAttacking = false;
 			attackState = MOVE;
+			attackAngle = 0.0f;
+			attackExitChosen = false;
+			attackExitPoint = Point2d();
+			attackSlope = 0.0f;
+			attackYIntercept = 0.0f;
+			attackVelocity = Point2d();
 		}
 
 

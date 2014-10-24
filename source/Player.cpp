@@ -26,9 +26,8 @@ void Player::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_healt
 	velocity = a_velocity;
 	collider.radius = a_radius;
 	health = a_health;
-	speed = 10.0f;
+	speed = 25.0f;
 	alive = true;
-	//bullet.Init(a_pos, Point2d{ 0, 1 }, 100.0f, 15.0f, 1);
 
 }
 
@@ -36,7 +35,7 @@ void Player::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_healt
 void Player::Input()
 {
 	//start with 0 velocity
-	velocity = Point2d{ 0, 0 };
+	velocity = Point2d();
 
 	if (IsKeyDown(GLFW_KEY_A))
 	{
@@ -75,7 +74,7 @@ void Player::Input()
 //handle shooting
 void Player::Shoot()
 {
-	BulletManager::playerBullet->velocity = Point2d{ 0, 1 };
+	BulletManager::playerBullet->velocity = Point2d(0, 1);
 	BulletManager::playerBullet->alive = true;
 }
 
@@ -103,7 +102,7 @@ void Player::Update(float a_delta)
 	if (!BulletManager::playerBullet->alive)
 	{
 		//set bullet makes bullet alive but want it dead here until player shoots
-		BulletManager::SetBullet(PLAYER, Point2d{ position.x, (position.y + 30) }, Point2d{ 0, 0 }, 100, 1);
+		BulletManager::SetBullet(PLAYER, Point2d(position.x, (position.y + 30)), Point2d(), 100, 1);
 		BulletManager::playerBullet->alive = false;
 	}
 

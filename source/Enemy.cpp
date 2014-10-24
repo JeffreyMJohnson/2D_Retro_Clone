@@ -21,17 +21,33 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	//attackAngle = DegreeToRadians(90.0f);
 	attackRadius = 50.0f;
 	attackState = MOVE;
-	attackExitPoint = Point2d{ 0, 0 };
+	attackExitPoint = Point2d();
 	attackExitChosen = false;
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
 	//attackDirection = 0;
-	attackVelocity = Point2d{ 0, 0 };
-	attackSpeed = 5.0f;
-	shootMaxTime = 7.0f;
+	attackVelocity = Point2d();
+	attackSpeed = 15.0f;
+	shootMaxTime = 5.0f;
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
+}
+
+/*
+returns true if this position is equal to the other position else returns false
+*/
+bool Enemy::operator==(Enemy& other)
+{
+	return position == other.position;
+}
+
+/*
+returns true if this position is not equal to the other position else returns false
+*/
+bool Enemy::operator!=(Enemy& other)
+{
+	return !(*this == other);
 }
 
 //Initialize enemy with position, velocity, collider radius, health, speed and alive
@@ -46,11 +62,12 @@ void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health
 }
 
 void Enemy::Update(float a_delta)
-{
+{	
 	//keep pace with the other moving group except when attack mode
 	if (alive && attackState != ATTACK)
 	{
 		position.x += speed * velocity.x * a_delta;
+		//returnPosition.x += speed * velocity.x * a_delta;
 	}
 	if (isAttacking && alive)
 	{
@@ -115,14 +132,14 @@ void Enemy::Attack(float timeDelta)
 			}
 			//attackAngle = attackAngle * attackDirection + DegreeToRadians(attackSpeed * timeDelta);
 
-			position = Point2d{ x, y };
+			position = Point2d(x, y);
 		}
 		else
 		{
 			attackAngle = 90.0f;
 			attackState = ATTACK;
 			//change velocity to downward y for return phase
-			attackVelocity = Point2d{ attackVelocity.x, -1 };
+			attackVelocity = Point2d(attackVelocity.x, -1);
 		}
 		//		break;
 		break;
@@ -135,13 +152,13 @@ void Enemy::Attack(float timeDelta)
 			if (position.x < player->GetPosition().x)
 			{
 				//pick to right of player
-				attackVelocity = Point2d{ 1, 1 };
+				attackVelocity = Point2d(1, 1);
 			}
 			else//enemy to right or equal of player so go left
 			{
-				attackVelocity = Point2d{ -1, 1 };
+				attackVelocity = Point2d(-1, 1);
 			}
-			attackExitPoint = Point2d{ player->position.x + 100.0f * attackVelocity.x, 0 };
+			attackExitPoint = Point2d(player->position.x + 100.0f * attackVelocity.x, 0);
 			attackExitChosen = true;
 
 			//slope formula -> m = (y1 -y2) / (x1 - x2)
@@ -158,7 +175,7 @@ void Enemy::Attack(float timeDelta)
 		if (shootTimer <= 0)
 		{
 			std::cout << "shoot\n";
-			BulletManager::SetBullet(ENEMY, position, Point2d{ 0, -1 }, 50.0f, 1);
+			BulletManager::SetBullet(ENEMY, position, Point2d(0, -1), 50.0f, 1);
 			shootTimer = shootMaxTime;
 
 		}
@@ -174,7 +191,7 @@ void Enemy::Attack(float timeDelta)
 		{
 			float x = position.x + attackSpeed * attackVelocity.x * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;
-			position = Point2d{ x, y };
+			position = Point2d(x, y);
 			/*float x = position.x + attackSpeed * timeDelta;
 			float y = (attackSlope * x) + attackYIntercept;*/
 		}
@@ -183,19 +200,19 @@ void Enemy::Attack(float timeDelta)
 			attackExitChosen = false;
 
 			//set enemy x to original position and y to screen height
-			position = Point2d{ returnPosition.x, screenHeight };
+			position = Point2d(returnPosition.x, screenHeight);
 			attackState = RETURN;
 
 		}
 
 		break;
 	case RETURN:
-		attackVelocity = Point2d{ attackVelocity.x, -1 };
+		attackVelocity = Point2d(attackVelocity.x, -1);
 		if (position.y > returnPosition.y)
 		{
 			float y = position.y;
 			float returnY = returnPosition.y;
-			position = Point2d{ position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta) };
+			position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
 		}
 		else
 		{

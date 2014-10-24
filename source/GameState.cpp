@@ -13,8 +13,8 @@ GameState::GameState()
 {
 	scoreLabel = "1UP";
 	highScoreLabel = "HIGH SCORE";
-	scorePos = { screenWidth * .1f, screenHeight };
-	highScorePos = { screenWidth * .5f - 75.0f, screenHeight };
+	scorePos = Point2d(screenWidth * .1f, screenHeight);
+	highScorePos = Point2d(screenWidth * .5f - 75.0f, screenHeight);
 	score = 0;
 	highScore = 10000;
 	playerLives = 3;
@@ -25,7 +25,12 @@ GameState::GameState()
 	enemyColMaxX = 0.0f;
 
 	//need to be a positive y for first stage of attack
-	attackVelocity = Point2d{ -1, 1 };
+	attackVelocity = Point2d(-1, 1);
+	attackingEnemy = nullptr;
+
+	restartPause = false;
+	restartTimer = 10.0f;
+	currentRestartTime = 0.0f;
 
 
 }
@@ -46,8 +51,8 @@ void GameState::Initialize()
 	BulletManager::Init();
 
 	Player* player = new Player("./images/player/galaxian.png", 45.0f, 51.0f);
-	player->Init(Point2d{ screenWidth * 0.5f, 100.0f }, Point2d{ 0, 0 }, 10.0f, 1);
-	
+	player->Init(Point2d(screenWidth * 0.5f, 100.0f), Point2d(), 10.0f, 1);
+
 	gameObjects.push_back(player);
 
 	//create and position enemy group
@@ -59,7 +64,7 @@ void GameState::Initialize()
 	//need?
 	fontFile = "./fonts/galaxian.fnt";
 
-	
+
 	//Highscores scores;
 	//scores.LoadScores();
 	//if (scores.IsEmpty())
@@ -80,8 +85,13 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
 	if (!sendAttack)
 	{
-		//will set sendAttack to true if it's time
-		TimerTick(a_timestep);
+		//don't call timerTick for attacking if pausing for restart
+		if (!restartPause)
+		{
+			//will set sendAttack to true if it's time
+			TimerTick(a_timestep);
+		}
+
 
 		//if timer set attack this will run once per attack
 		if (sendAttack)
@@ -97,7 +107,6 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 
 			//set the leader
 			SetAttackLeader();
-			attackingEnemy = 0;
 		}
 	}
 
@@ -105,10 +114,11 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	if (sendAttack)
 	{
 		sendNextEnemy();
-		/*if (attackingEnemies.size() == 2 && attackingEnemies[1]->GetAttackState() == WAIT && attackingEnemies[0]->GetAttackState() == ATTACK)
+		//check if attack run is complete or all attacking enemies dead
+		if (lastEnemyReturned())
 		{
-			attackingEnemies[1]->SetAttackState(MOVE);
-		}*/
+			sendAttack = false;
+		}
 	}
 
 	for (auto object : gameObjects)
@@ -116,7 +126,12 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		object->Update(a_timestep);
 		if (dynamic_cast<Enemy*>(object) != 0)
 		{
-			EnemyLogic(dynamic_cast<Enemy*>(object), a_timestep);
+			Enemy* enemy = dynamic_cast<Enemy*>(object);
+			if (enemy->alive)
+			{
+				EnemyLogic(enemy, a_timestep);
+			}
+
 		}
 
 		if (dynamic_cast<Player*>(object) != 0)
@@ -214,7 +229,7 @@ void GameState::CreateEnemies()
 		}
 
 		//initialize position
-		enemy->Init(Point2d{ enemyX, enemyY }, Point2d{ 1, 0 }, 25, 30, 1.0f);
+		enemy->Init(Point2d(enemyX, enemyY), Point2d(1, 0), 25, 30, 2.5f);
 
 		//increment next enemy's x position
 		enemyX += enemy->GetWidth() + 10.0f;
@@ -232,8 +247,6 @@ enemy group moving logic, enemy bullet collision
 */
 void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 {
-	enemy->Update(timeDelta);
-
 	//enemies who aren't attacking  moving left and right max and min logic
 	if (enemy->GetPosition().x > screenWidth * 0.85f && !enemy->isAttacking)
 	{
@@ -242,6 +255,7 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	}//use return position so it keeps it's spot
 	else if (enemy->isAttacking && enemy->GetReturnPosition().x > screenWidth * 0.85f)
 	{
+		enemy->SetReturnPosition(Point2d(screenWidth * 0.85f, enemy->GetReturnPosition().y));
 		ReverseEnemies();
 	}
 	else if (enemy->GetPosition().x < screenWidth * 0.15f && !enemy->isAttacking)
@@ -252,13 +266,20 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 	}
 	else if (enemy->isAttacking && enemy->GetReturnPosition().x < screenWidth * 0.15f)
 	{
+		enemy->SetReturnPosition(Point2d(screenWidth * 0.15f, enemy->GetReturnPosition().y));
 		ReverseEnemies();
 	}
 
 	//player bullet collision logic
 	if (BulletManager::playerBullet->alive && enemy->alive && BulletManager::playerBullet->collider.isCollided(enemy->collider))
 	{
+
 		enemy->alive = false;
+		if (enemy->isAttacking)
+		{
+			//RemoveAttackingEnemy(*enemy);
+		}
+
 		BulletManager::playerBullet->alive = false;
 
 		score += enemy->health;
@@ -298,12 +319,63 @@ void GameState::PlayerLogic(Player* a_player, float a_delta)
 					enemy->alive = false;
 					a_player->alive = false;
 
-					//TODO::next life code here
-
 				}
 			}
 		}
 	}
+
+	if (!a_player->alive)
+	{
+		PlayerDeath(a_player);
+	}
+}
+
+/*
+Handle player after collision with enemy or enemy bullet.
+will switch state to game over if was last life otherwise will decrement lives remaining
+*/
+void GameState::PlayerDeath(Player* player)
+{
+	if (playerLives > 0)
+	{
+		playerLives--;
+		//TODO::pause for x seconds then restart
+		//restartPause = true;
+		player->alive = true;
+	}
+	else
+	{
+		//TODO::switch to game over state when there is one
+		std::cout << "game over";
+		//system("pause");
+	}
+}
+
+/*
+remove enemy from attacking enemies list with same position as given enemy
+*/
+bool GameState::RemoveAttackingEnemy(Enemy& a_enemy)
+{
+	assert(attackingEnemies.size() > 0);
+	std::vector<Enemy*>::iterator index = attackingEnemies.end();
+	for (std::vector<Enemy*>::iterator it = attackingEnemies.begin(); it != attackingEnemies.end(); it++)
+	{
+		//iterator is a pointer to element in vector which is pointer to Enemy, need to double dereference
+		//to get object for compare. wait, what?
+		if (**(it) == a_enemy)
+		{
+			index = it;
+			break;
+		}
+	}
+	if (index == attackingEnemies.end())
+	{
+		return false;
+	}
+
+	attackingEnemies.erase(index);
+	return true;
+
 }
 
 /*
@@ -311,15 +383,17 @@ Helper function for attacking enemies
 */
 void GameState::ChooseAttackers()
 {
-
+	float delta = .001;
 	for (auto entity : gameObjects)
 	{
 		if (dynamic_cast<Enemy*>(entity) != 0)
 		{
 			Enemy* enemy = dynamic_cast<Enemy*>(entity);
 			//if direction is left (1) then use the min column else use the max
-			if ((attackVelocity.x == 1 && enemy->position.x == enemyColMinX) ||
-				(attackVelocity.x == -1 && enemy->position.x == enemyColMaxX))
+			/*if ((attackVelocity.x == 1 && enemy->position.x == enemyColMinX) ||
+				(attackVelocity.x == -1 && enemy->position.x == enemyColMaxX))*/
+			if ((attackVelocity.x == 1 && Helper::FloatEquals(enemy->position.x, enemyColMinX, delta) ||
+				(attackVelocity.x == -1 && Helper::FloatEquals(enemy->position.x, enemyColMaxX, delta))))
 			{
 				enemy->isAttacking = true;
 				enemy->attackVelocity = attackVelocity;
@@ -348,8 +422,34 @@ void GameState::SetAttackLeader()
 		{
 			attackingEnemies[i]->SetAttackState(WAIT);
 		}
+		else
+		{
+			attackingEnemy = attackingEnemies[i];
+		}
 	}
 
+}
+
+/*
+returns true if the last alive enemy in attacking enemy list has returned to it's original position
+or there are no alive attacking enemies	else returns false
+*/
+bool GameState::lastEnemyReturned()
+{
+	//if all attacking enemies are not attacking then clear vector return true
+	Enemy* lastAlive = nullptr;
+	Enemy* lastReturned = nullptr;
+	for (std::vector<Enemy*>::iterator it = attackingEnemies.begin(); it != attackingEnemies.end(); it++)
+	{
+		Enemy* enemy = *it;
+		if (enemy->alive && enemy->isAttacking)
+		{
+			return false;
+		}
+	}
+	//no one alive and attacking so either all dead or all not attacking so clear list and return true
+	attackingEnemies.clear();
+	return true;
 }
 
 /*Helper function for attacking enemies
@@ -358,23 +458,25 @@ of next enemy in list to MOVE if there is one.
 This function ran every frame*/
 void GameState::sendNextEnemy()
 {
-	//if last enemy attacking return
-	if (attackingEnemy + 1 == attackingEnemies.size())
+	//if attackingEnemy not in attack state return
+	if (attackingEnemy->GetAttackState() != ATTACK)
 		return;
 
-	//if attacking enemy not done moving return
-	if (attackingEnemies[attackingEnemy]->GetAttackState() == MOVE)
-		return;
-
-	//if here there must be at least one more enemy waiting to attack
-	for (int i = attackingEnemy; i < attackingEnemies.size(); i++)
+	bool sendNext = false;
+	for (std::vector<Enemy*>::iterator it = attackingEnemies.begin(); it != attackingEnemies.end(); it++)
 	{
-		//if current attacking enemy switches to attack state switch next enemy to move
-		if (attackingEnemies[i]->GetAttackState() == ATTACK)
+		Enemy* enemy = *it;
+		if (sendNext)
 		{
-			attackingEnemy++;
-			attackingEnemies[attackingEnemy]->SetAttackState(MOVE);
+			attackingEnemy = enemy;
+			enemy->SetAttackState(MOVE);
+			return;
 		}
+		if (enemy == attackingEnemy)
+		{
+			sendNext = true;
+		}
+
 	}
 }
 
@@ -475,11 +577,11 @@ void GameState::GetAttackDirection()
 	int i = rand() % 2; //0 or 1
 	if (i == 0)
 	{
-		attackVelocity = Point2d{ -1, 1 }; //right circle
+		attackVelocity = Point2d(-1, 1); //right circle
 	}
 	else
 	{
-		attackVelocity = Point2d{ 1, 1 };//left circle
+		attackVelocity = Point2d(1, 1);//left circle
 	}
 }
 

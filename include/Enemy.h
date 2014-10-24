@@ -53,6 +53,16 @@ public:
 	//Instantiate enemy with sprite
 	Enemy(const char* filePath, float a_width, float a_height);
 
+	/*
+	returns true if this position is equal to the other position else returns false
+	*/
+	bool operator==(Enemy& other);
+
+	/*
+	returns true if this position is not equal to the other position else returns false
+	*/
+	bool operator!=(Enemy& other);
+
 	//Initialize enemy with position, velocity, collider radius, health, speed and alive
 	void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed);
 

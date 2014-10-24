@@ -45,6 +45,12 @@ public:
 	*/
 	void Destroy();
 
+	bool restartPause;
+	float restartTimer;
+	float currentRestartTime;
+	
+
+
 private:
 	const float attackTimeMax = 2.0f;
 
@@ -64,6 +70,17 @@ private:
 	void PlayerLogic(Player* a_player, float a_delta);
 
 	/*
+	Handle player after collision with enemy or enemy bullet.
+	will switch state to game over if was last life otherwise will decrement lives remaining
+	*/
+	void PlayerDeath(Player* player);
+
+	/*
+	remove enemy from attacking enemies list with same position as given enemy
+	*/
+	bool RemoveAttackingEnemy(Enemy& a_enemy);
+
+	/*
 	Helper function for attacking enemies
 	*/
 	void ChooseAttackers();
@@ -75,6 +92,12 @@ private:
 	This function runs once per attack cycle;
 	*/
 	void SetAttackLeader();
+
+	/*
+	returns true if the last alive enemy in attacking enemy list has returned to it's original position
+	or there are no alive attacking enemies	else returns false
+	*/
+	bool lastEnemyReturned();
 
 	/*Helper function for attacking enemies
 	will check if the currently attacking enemy has moved to ATTACK state and if it is will change attack state
@@ -116,7 +139,7 @@ private:
 
 
 	bool sendAttack;
-	int attackingEnemy;
+	Enemy* attackingEnemy;
 	float attackTimer;
 	float enemyColMinX;
 	float enemyColMaxX;

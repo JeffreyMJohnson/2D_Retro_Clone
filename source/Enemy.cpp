@@ -10,11 +10,10 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	width = a_width;
 	height = a_height;
 	spriteID = CreateSprite(filePath, a_width, a_height, true);
-	
+
 
 	activeEnemyCount++;
 	isAttacking = false;
-	returnPosition = Point2d();
 	//in radians so convert;
 	attackAngle = Helper::DegreeToRadians(90.0f);
 	attackRadius = 50.0f;
@@ -29,6 +28,8 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
+
+	//returnPosition = Point2d();
 }
 
 /*
@@ -47,8 +48,9 @@ bool Enemy::operator!=(Enemy& other)
 	return !(*this == other);
 }
 
-//Initialize enemy with position, velocity, collider radius, health, speed and alive
-void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed)
+//Initialize enemy with position, velocity, collider radius, health, speed, colIndex, rowIndex and alive
+//void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed)
+void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed, int a_colIndex, int a_rowIndex)
 {
 	position = a_pos;
 	velocity = a_velocity;
@@ -56,26 +58,24 @@ void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health
 	health = a_health;
 	speed = a_speed;
 	alive = true;
+	colPositionIndex = a_colIndex;
+	rowPositionIndex = a_rowIndex;
 }
 
 void Enemy::Update(float a_delta)
 {
-	//keep pace with the other moving group except when attack mode
-	if (attackState != ATTACK)
-	{
-		position.x += speed * velocity.x * a_delta;
-		//returnPosition.x += speed * velocity.x * a_delta;
-	}
+
+}
+
+//overridden to give GameState handle for accessing position grid
+void Enemy::Update(float delta, GameState* gameState)
+{
+
+	//std::cout << GetEnemyGroupPosition(0, 0).x << std::endl;
 	if (isAttacking && alive)
 	{
-		//move position with the group so it's synced
-		returnPosition.x += speed * velocity.x * a_delta;
-
-
-		//SetSpriteColour(spriteID, SColour(255, 0, 0, 255));
-
 		//go through attack phases
-		Attack(a_delta);
+		Attack(delta, gameState);
 
 	}
 	//set collider center after each update to sync to position.;
@@ -86,7 +86,7 @@ void Enemy::Update(float a_delta)
 in order to go negative direction when the circle reaches 0 degrees it will reset to 360 and fail existing test.
 solution is an equality test for 270 degrees, but with float math will need to use epsilon - (fabs(result - expectedResult) > epsilon)
 */
-void Enemy::Attack(float timeDelta)
+void Enemy::Attack(float timeDelta, GameState* gameState)
 {
 	float epsilon = .01;
 
@@ -96,7 +96,8 @@ void Enemy::Attack(float timeDelta)
 		//std::cout << "waiting....\n";
 		break;
 	case MOVE:
-		if (position.y < returnPosition.y + attackRadius)
+		//if (position.y < returnPosition.y + attackRadius)
+		if (position.y < gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex).y + attackRadius)
 		{
 			position.y += attackSpeed * attackVelocity.y * timeDelta;
 		}
@@ -114,8 +115,10 @@ void Enemy::Attack(float timeDelta)
 		//attackAngle is in radians convert to be in degrees
 		if (fabs((attackAngle - Helper::DegreeToRadians(270.0f))) > epsilon)
 		{
+			Point2d returnPosition = gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex);
 			float x = (returnPosition.x + (attackRadius * cos(attackAngle)));
 			float y = (returnPosition.y + (attackRadius * sin(attackAngle)));
+
 			/*float cosA = cos(attackAngle);
 			float sinA = sin(attackAngle);
 			float angleR = attackAngle;
@@ -191,7 +194,7 @@ void Enemy::Attack(float timeDelta)
 			attackExitChosen = false;
 
 			//set enemy x to original position and y to screen height
-			position = Point2d(returnPosition.x, screenHeight);
+			position = Point2d(gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex).x, screenHeight);
 			attackState = RETURN;
 
 		}
@@ -199,15 +202,15 @@ void Enemy::Attack(float timeDelta)
 		break;
 	case RETURN:
 		attackVelocity = Point2d(attackVelocity.x, -1);
-		if (position.y > returnPosition.y)
+		if (position.y > gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex).y)
 		{
-			float y = position.y;
-			float returnY = returnPosition.y;
-			position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
-			//position = Point2d(returnPosition.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
+			//position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
+			position = Point2d(gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex).x, 
+						position.y + (attackSpeed * attackVelocity.y * timeDelta));
 		}
 		else
 		{
+			position = gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex);
 			isAttacking = false;
 			attackState = MOVE;
 			attackAngle = 0.0f;
@@ -317,16 +320,16 @@ float Enemy::GetAttackRadius()
 	return attackRadius;
 }
 
-void Enemy::SetOriginalPos(Point2d a_point)
-{
-	returnPosition = a_point;
-}
-
-Point2d Enemy::GetreturnPosition()
-{
-	return returnPosition;
-
-}
+//void Enemy::SetOriginalPos(Point2d a_point)
+//{
+//	returnPosition = a_point;
+//}
+//
+//Point2d Enemy::GetreturnPosition()
+//{
+//	return returnPosition;
+//
+//}
 
 void Enemy::SetAttackState(attackStates a_state)
 {
@@ -348,14 +351,14 @@ Point2d Enemy::GetAttackExitPoint()
 	return attackExitPoint;
 }
 
-void Enemy::SetReturnPosition(Point2d point)
-{
-	returnPosition = point;
-}
-Point2d Enemy::GetReturnPosition()
-{
-	return returnPosition;
-}
+//void Enemy::SetReturnPosition(Point2d point)
+//{
+//	returnPosition = point;
+//}
+//Point2d Enemy::GetReturnPosition()
+//{
+//	return returnPosition;
+//}
 
 
 Enemy::~Enemy()

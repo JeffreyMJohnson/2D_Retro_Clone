@@ -15,8 +15,8 @@
 #include <assert.h>
 #include <iostream>
 
-
-
+//needed to prevent circular reference
+class Enemy;
 
 class GameState : public BaseState
 {
@@ -48,7 +48,13 @@ public:
 	Player* player;
 	float restartTimer;
 	float currentRestartTime;
+	Point2d enemyGroupVelocity;
+	float enemyGroupSpeed;
+
+	std::vector<float> enemyColPositions;
+	std::vector<float> enemyRowPositions;
 	
+	Point2d GetEnemyGroupPosition(int colIndex, int rowIndex);
 
 
 private:

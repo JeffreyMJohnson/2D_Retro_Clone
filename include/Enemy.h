@@ -8,12 +8,13 @@
 //
 #include "Entity.h"
 #include "Player.h"
+#include "GameState.h"
 #include <vector>
 #include <math.h>
 #include <assert.h>
 
-//#define PI 3.14159
 
+class GameState;
 
 extern const int screenWidth;
 extern const int screenHeight;
@@ -48,6 +49,9 @@ public:
 	float attackYIntercept;
 	Point2d attackVelocity;
 
+	int colPositionIndex;
+	int rowPositionIndex;
+
 	Enemy();
 
 	//Instantiate enemy with sprite
@@ -63,20 +67,25 @@ public:
 	*/
 	bool operator!=(Enemy& other);
 
-	//Initialize enemy with position, velocity, collider radius, health, speed and alive
-	void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed);
+	//Initialize enemy with position, velocity, collider radius, health, speed, colIndex, rowIndex and alive
+	//void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed);
+	void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed, int a_colIndex, int a_rowIndex);
 
 	//handle shooting
 	void Shoot();
 
 
 	virtual void Update(float delta);
+
+	//overridden to give GameState handle for accessing position grid
+	void Update(float delta, GameState* gameState);
+
 	virtual void Draw();
 
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
 	
-	void Attack(float timeDelta);
+	void Attack(float timeDelta, GameState* gameState);
 
 	void SetLeftMoveExtreme(unsigned int a_leftExtreme);
 	unsigned int GetLeftMoveExtreme();
@@ -102,8 +111,8 @@ public:
 	void SetAttackState(attackStates a_state);
 	attackStates GetAttackState();
 
-	void SetReturnPosition(Point2d point);
-	Point2d GetReturnPosition();
+	//void SetReturnPosition(Point2d point);
+	//Point2d GetReturnPosition();
 
 	~Enemy();
 
@@ -113,7 +122,7 @@ private:
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 	int scoreValue;
-	Point2d returnPosition;
+	//Point2d returnPosition;
 	float attackAngle;
 	float attackRadius;
 	Point2d attackExitPoint;

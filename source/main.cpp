@@ -10,6 +10,9 @@ using namespace std;
 extern const int screenWidth = 600;
 extern const int screenHeight = 800;
 extern const int NUM_ENEMYS = 36;
+extern const int NUM_ENEMY_COLS = 9;
+extern const int NUM_ENEMY_ROWS = 4;
+
 //extern const int NUM_ENEMYS = 18;
 
 

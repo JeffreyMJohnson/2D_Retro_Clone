@@ -7,6 +7,10 @@
 extern const int screenWidth;
 extern const int screenHeight;
 
+//Row/Col magic numbers
+extern const int NUM_ENEMY_COLS;
+extern const int NUM_ENEMY_ROWS;
+
 //PUBLIC FUNCTIONS
 
 GameState::GameState()
@@ -32,7 +36,8 @@ GameState::GameState()
 
 	restartTimer = 15.0f;
 	currentRestartTime = 0.0f;
-
+	enemyGroupVelocity = Point2d(1, 0);
+	enemyGroupSpeed = 1.0f;
 
 }
 
@@ -134,13 +139,39 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		}
 	}
 
+	bool reverseGroup = false;
+	//update enemy group positions
+	for (float& colPos : enemyColPositions)
+	{
+		colPos += enemyGroupVelocity.x * enemyGroupSpeed * a_timestep;
+		//check if need to reverse
+		if (colPos > screenWidth * 0.85f)
+		{
+			colPos = screenWidth* 0.85f;
+			reverseGroup = true;
+		}
+		else if (colPos < screenWidth * 0.15f)
+		{
+			colPos = screenWidth * 0.15f;
+			reverseGroup = true;
+		}
+	}
+	if (reverseGroup)
+	{
+		enemyGroupVelocity.x *= -1;
+	}
+
+
+
 	bool allEnemyDead = true;
 	for (auto object : gameObjects)
 	{
-		object->Update(a_timestep);
+		//object->Update(a_timestep);
 		if (dynamic_cast<Enemy*>(object) != 0)
 		{
 			Enemy* enemy = dynamic_cast<Enemy*>(object);
+			enemy->Update(a_timestep, this);
+
 			if (enemy->alive)
 			{
 				EnemyLogic(enemy, a_timestep);
@@ -151,6 +182,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 
 		if (dynamic_cast<Player*>(object) != 0)
 		{
+			object->Update(a_timestep);
 			PlayerLogic(dynamic_cast<Player*>(object), a_timestep);
 
 
@@ -234,6 +266,11 @@ void GameState::Destroy()
 	//DestroySprite(bulletTexture);
 }
 
+//static function to get position in grid
+Point2d GameState::GetEnemyGroupPosition(int colIndex, int rowIndex)
+{
+	return Point2d(enemyColPositions[colIndex], enemyRowPositions[rowIndex]);
+}
 
 //private functions
 
@@ -246,29 +283,42 @@ void GameState::CreateEnemies()
 	float enemyX = screenWidth * 0.2f;
 	float enemyY = screenHeight *0.8f;
 
-	for (int i = 0; i < NUM_ENEMYS; i++)
+	//load cols x positions
+	for (int colIndex = 0; colIndex < NUM_ENEMY_COLS; colIndex++)
 	{
-
-		Enemy* enemy = new Enemy("./images/blue_enemy/blue_enemy_1.png", 35, 25);
-
-		//check if need new line of enemy
 		if (enemyX > screenWidth * 0.8f)
 		{
-			enemyX = screenWidth * 0.2f;
-			enemyY -= enemy->GetHeight();
+			//no more room so quit cols
+			break;
 		}
+		enemyColPositions.push_back(enemyX);
 
-		//initialize position
-		enemy->Init(Point2d(enemyX, enemyY), Point2d(1, 0), 25, 30, 2.5f);
+		//increment to next col by enemy width + padding
+		enemyX += 35 + 10.0f;
+	}
 
-		//increment next enemy's x position
-		enemyX += enemy->GetWidth() + 10.0f;
+	//load rows y positions 
+	for (int rowIndex = 0; rowIndex < NUM_ENEMY_ROWS; rowIndex++)
+	{
+		enemyRowPositions.push_back(enemyY);
+		//minus enemy height
+		enemyY -= 25;
+	}
 
-		enemy->SetScoreValue(30);
+	//create enemies with indexing
+	for (int colIndex = 0; colIndex < enemyColPositions.size(); colIndex++)
+	{
+		for (int rowIndex = 0; rowIndex < enemyRowPositions.size(); rowIndex++)
+		{
+			Enemy* enemy = new Enemy("./images/blue_enemy/blue_enemy_1.png", 35, 25);
+			//initialize position
+			enemy->Init(Point2d(enemyColPositions[colIndex], enemyRowPositions[rowIndex]), Point2d(1, 0), 25, 30, 2.5f, colIndex, rowIndex);
+			
+			enemy->SetScoreValue(30);
+			enemy->player = dynamic_cast<Player*>(gameObjects[0]);
 
-		enemy->player = dynamic_cast<Player*>(gameObjects[0]);
-
-		gameObjects.push_back(enemy);
+			gameObjects.push_back(enemy);
+		}
 	}
 }
 
@@ -277,28 +327,14 @@ enemy group moving logic, enemy bullet collision
 */
 void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 {
-	//BUG::this is just broken, have hacked a fix elsewhere, but this is the problem child enemy group movement
-	//enemies who aren't attacking  moving left and right max and min logic
-	if (enemy->GetPosition().x > screenWidth * 0.85f && !enemy->isAttacking)
+	if (!enemy->isAttacking)
 	{
-		enemy->SetX(screenWidth * 0.85f);
-		ReverseEnemies();
-	}//use return position so it keeps it's spot
-	else if (enemy->isAttacking && enemy->GetReturnPosition().x > screenWidth * 0.85f)
-	{
-		enemy->SetReturnPosition(Point2d(screenWidth * 0.85f, enemy->GetReturnPosition().y));
-		ReverseEnemies();
+		enemy->position = Point2d(enemyColPositions[enemy->colPositionIndex], enemyRowPositions[enemy->rowPositionIndex]);
 	}
-	else if (enemy->GetPosition().x < screenWidth * 0.15f && !enemy->isAttacking)
-	{
-		enemy->SetX(screenWidth * 0.15f);
 
-		ReverseEnemies();
-	}
-	else if (enemy->isAttacking && enemy->GetReturnPosition().x < screenWidth * 0.15f)
+	if (enemy->isAttacking && enemy->GetAttackState() != ATTACK)
 	{
-		enemy->SetReturnPosition(Point2d(screenWidth * 0.15f, enemy->GetReturnPosition().y));
-		ReverseEnemies();
+		enemy->position.x += enemyGroupVelocity.x * enemyGroupSpeed * timeDelta;
 	}
 
 	//player bullet collision logic
@@ -379,7 +415,7 @@ Helper function for attacking enemies
 void GameState::ChooseAttackers()
 {
 	//HACK::using float math with large delta because of problem keeping attacking enemy starting positions synced.  Not good, needs to be fixed.
-	float delta = 5.0f;
+	float delta = .0001f;
 	for (auto entity : gameObjects)
 	{
 		if (dynamic_cast<Enemy*>(entity) != 0)
@@ -393,7 +429,6 @@ void GameState::ChooseAttackers()
 			{
 				enemy->isAttacking = true;
 				enemy->attackVelocity = attackVelocity;
-				enemy->SetReturnPosition(enemy->position);
 				attackingEnemies.push_back(enemy);
 			}
 

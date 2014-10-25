@@ -130,6 +130,11 @@ private:
 
 	void DrawUI();
 
+	/*
+	initialize objects for new level. called when all enemy dead
+	*/
+	void NewLevelInit();
+
 	char* ScoreToString(int a_score);
 
 

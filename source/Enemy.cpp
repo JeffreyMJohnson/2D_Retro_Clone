@@ -61,7 +61,7 @@ void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health
 void Enemy::Update(float a_delta)
 {
 	//keep pace with the other moving group except when attack mode
-	if (alive && attackState != ATTACK)
+	if (attackState != ATTACK)
 	{
 		position.x += speed * velocity.x * a_delta;
 		//returnPosition.x += speed * velocity.x * a_delta;

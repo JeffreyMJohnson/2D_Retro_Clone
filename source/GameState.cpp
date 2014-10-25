@@ -51,7 +51,7 @@ void GameState::Initialize()
 	//initialize bulletManager static class
 	BulletManager::Init();
 
-	player = new Player("./images/player/galaxian.png", 45.0f, 51.0f);
+	player = new Player("./images/player/galaxian_a.png", 46.0f, 69.0f);
 	player->Init(Point2d(screenWidth * 0.5f, 100.0f), Point2d(), 10.0f, 1);
 
 	gameObjects.push_back(player);
@@ -134,6 +134,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		}
 	}
 
+	bool allEnemyDead = true;
 	for (auto object : gameObjects)
 	{
 		object->Update(a_timestep);
@@ -143,6 +144,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 			if (enemy->alive)
 			{
 				EnemyLogic(enemy, a_timestep);
+				allEnemyDead = false;
 			}
 
 		}
@@ -152,6 +154,21 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 			PlayerLogic(dynamic_cast<Player*>(object), a_timestep);
 
 
+		}
+
+	}
+	//next level condition
+	if (allEnemyDead)
+	{
+		//recycle the player restart timer
+		if (currentRestartTime >= restartTimer)
+		{
+			currentRestartTime = 0.0f;
+			NewLevelInit();
+		}
+		else
+		{
+			currentRestartTime += a_timestep;
 		}
 
 	}
@@ -587,6 +604,50 @@ void GameState::DrawUI()
 		MoveSprite(playerLifeTextureID, screenWidth * .05f + (paddingX * i), 25.0f);
 		DrawSprite(playerLifeTextureID);
 	}
+
+}
+
+/*
+initialize objects for new level. called when all enemy dead
+*/
+void GameState::NewLevelInit()
+{
+	//first enemy's position
+	float enemyX = screenWidth * 0.2f;
+	float enemyY = screenHeight *0.8f;
+
+	//init enemy
+	for (Entity* entity : gameObjects)
+	{
+		if (dynamic_cast<Enemy*>(entity) != 0)
+		{
+			Enemy* enemy = dynamic_cast<Enemy*>(entity);
+			enemy->alive = true;
+			enemy->isAttacking = false;
+
+			enemy->SetAttackState(MOVE);
+			enemy->SetAttackAngle(0.0f);
+			enemy->attackExitChosen = false;
+			enemy->SetAttackExitPoint(Point2d());
+			enemy->attackSlope = 0.0f;
+			enemy->attackYIntercept = 0.0f;
+			enemy->attackVelocity = Point2d();
+
+			//check if need new line of enemy
+			if (enemyX > screenWidth * 0.8f)
+			{
+				enemyX = screenWidth * 0.2f;
+				enemyY -= enemy->GetHeight();
+			}
+
+			enemy->position = Point2d(enemyX, enemyY);
+
+			//increment next enemy's x position
+			enemyX += enemy->GetWidth() + 10.0f;
+		}
+	}
+
+	sendAttack = false;
 
 }
 

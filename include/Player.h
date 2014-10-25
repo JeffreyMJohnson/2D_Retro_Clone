@@ -26,7 +26,8 @@ const int MAX_BULLETS = 20;
 class Player : public Entity
 {
 public:
-	
+	unsigned int spriteID_A;
+	unsigned int spriteId_B;
 	
 	//Instantiate player with sprite
 	Player(char* filePath, float width, float height);

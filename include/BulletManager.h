@@ -15,10 +15,10 @@ public:
 	{
 		for (int i = 0; i < 100; i++)
 		{
-			enemyBullets.emplace_back(new Bullet("./images/bullet.png", 3, 20));
+			enemyBullets.emplace_back(new Bullet("./images/bullet.png", 5, 15));
 		}
 
-		playerBullet = new Bullet("./images/bullet.png", 3, 15);
+		playerBullet = new Bullet("./images/bullet.png",5, 15);
 		playerBullet->Init(Point2d(), Point2d(0, 1), 0, 1, 1);
 	}
 

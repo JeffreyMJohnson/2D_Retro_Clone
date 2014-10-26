@@ -3,12 +3,11 @@
 #define _GAME_STATE_H_
 
 #include "BaseState.h"
-#include "AIE.h"
-#include "StateMachine.h"
 #include "BulletManager.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Bullet.h"
+#include "EndGameState.h"
 #include <vector>
 #include <string>
 #include <time.h>
@@ -50,6 +49,7 @@ public:
 	float currentRestartTime;
 	Point2d enemyGroupVelocity;
 	float enemyGroupSpeed;
+	bool gameOver;
 
 	std::vector<float> enemyColPositions;
 	std::vector<float> enemyRowPositions;
@@ -170,7 +170,6 @@ private:
 	//position  of highscore and label
 	Point2d highScorePos;
 
-	int score;
 	int highScore;
 
 	int playerLives;

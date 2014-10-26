@@ -3,8 +3,8 @@
 #ifndef _BASE_STATE_H_
 #define _BASE_STATE_H_
 
-#include <vector>
-#include "Bullet.h"
+#include "AIE.h"
+#include "StateMachine.h"
 
 class StateMachine;
 
@@ -19,8 +19,10 @@ public:
 	virtual void Draw() = 0;
 	virtual void Destroy() = 0;
 
+	static int score;
 	
 };
+
 #endif // !_BASE_STATE_H_
 
 

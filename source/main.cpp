@@ -3,6 +3,7 @@
 #include "StateMachine.h"
 //for debug
 #include "GameState.h"
+#include "EndGameState.h"
 
 
 using namespace std;
@@ -24,7 +25,8 @@ int main( int argc, char* argv[] )
 	StateMachine state;
 
 #ifdef _DEBUG
-		state.PushState(new GameState());
+		//state.PushState(new GameState());
+	state.PushState(new EndGameState());
 #endif
 
     //Game Loop

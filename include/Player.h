@@ -46,8 +46,8 @@ public:
 	void SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
 
 	//Must implement these methods before can instantiate class
-	virtual void Update(float a_delta);
-	virtual void Draw();
+	void Update(float a_delta);
+	void Draw();
 
 
 	

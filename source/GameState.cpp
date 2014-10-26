@@ -1,8 +1,5 @@
 #include "GameState.h"
 
-
-
-
 //global variables for position calculating
 extern const int screenWidth;
 extern const int screenHeight;
@@ -11,17 +8,21 @@ extern const int screenHeight;
 extern const int NUM_ENEMY_COLS;
 extern const int NUM_ENEMY_ROWS;
 
-//PUBLIC FUNCTIONS
+//static score
+int BaseState::score;
 
+//PUBLIC FUNCTIONS
 GameState::GameState()
 {
+	gameOver = false;
 	scoreLabel = "1UP";
 	highScoreLabel = "HIGH SCORE";
 	scorePos = Point2d(screenWidth * .1f, screenHeight);
 	highScorePos = Point2d(screenWidth * .5f - 75.0f, screenHeight);
-	score = 0;
+	BaseState::score = 0;
 	highScore = 10000;
-	playerLives = 3;
+	//debug
+	playerLives = 1;
 	playerLifeTextureID = CreateSprite("./images/misc/user_life_sprite.png", 35.0f, 41.0f, true);
 	srand(time(nullptr));
 	sendAttack = false;
@@ -89,6 +90,9 @@ called by machine state each frame
 */
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
+	//must switch state at end of update, use gameOver flag here and sniff at end of function
+
+
 	//if here and player dead must be more lives so run timer to start again
 	if (!player->alive)
 	{
@@ -183,8 +187,13 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		if (dynamic_cast<Player*>(object) != 0)
 		{
 			object->Update(a_timestep);
+			//this may set gameOver flag so check after returns
 			PlayerLogic(dynamic_cast<Player*>(object), a_timestep);
-
+			if (gameOver)
+			{
+				a_SMPointer->SwitchState(new EndGameState());
+				return;
+			}
 
 		}
 
@@ -206,6 +215,7 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	}
 
 	BulletManager::Update(a_timestep);
+
 
 
 	////escape key
@@ -234,9 +244,6 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	gameOver = true;
 	return;
 	}*/
-
-
-
 }
 
 /*
@@ -345,9 +352,9 @@ void GameState::EnemyLogic(Enemy* enemy, float timeDelta)
 
 		BulletManager::playerBullet->alive = false;
 
-		score += enemy->health;
-		if (score > highScore)
-			highScore = score;
+		BaseState::score += enemy->health;
+		if (BaseState::score > highScore)
+			highScore = BaseState::score;
 	}
 }
 
@@ -356,6 +363,7 @@ bullet player collision logic, and enemy player collision logic
 */
 void GameState::PlayerLogic(Player* a_player, float a_delta)
 {
+	
 	if (a_player->alive)
 	{
 		//check if player hit by bullet
@@ -368,6 +376,7 @@ void GameState::PlayerLogic(Player* a_player, float a_delta)
 					enemyBullet->alive = false;
 					a_player->alive = false;
 					PlayerDeath(a_player);
+					break;
 				}
 			}
 
@@ -385,6 +394,7 @@ void GameState::PlayerLogic(Player* a_player, float a_delta)
 						enemy->alive = false;
 						a_player->alive = false;
 						PlayerDeath(a_player);
+						break;
 					}
 				}
 			}
@@ -398,14 +408,15 @@ will switch state to game over if was last life otherwise will decrement lives r
 */
 void GameState::PlayerDeath(Player* player)
 {
-	if (playerLives > 0)
+	if (playerLives > 1)
 	{
 		playerLives--;
 	}
 	else
 	{
-		//TODO::switch to game over state when there is one
-		std::cout << "game over";
+		gameOver = true;
+		//game over
+		
 	}
 }
 
@@ -624,7 +635,7 @@ void GameState::DrawUI()
 	//1up string above score;
 	//SetFont("./fonts/galaxian.fnt");
 	DrawString(scoreLabel, scorePos.x, scorePos.y);
-	sprintf(scoreAsString, "%05d", score);
+	sprintf(scoreAsString, "%05d", BaseState::score);
 	DrawString(scoreAsString, scorePos.x, scorePos.y - 25, SColour(255, 0, 0, 255));
 
 	DrawString(highScoreLabel, highScorePos.x, highScorePos.y);

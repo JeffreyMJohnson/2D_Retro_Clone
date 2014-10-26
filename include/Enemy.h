@@ -75,12 +75,12 @@ public:
 	void Shoot();
 
 
-	virtual void Update(float delta);
+	void Update(float delta);
 
 	//overridden to give GameState handle for accessing position grid
 	void Update(float delta, GameState* gameState);
 
-	virtual void Draw();
+	void Draw();
 
 	//helper functions for convenience 
 	void setMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);

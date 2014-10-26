@@ -1,8 +1,12 @@
 #pragma once
 
 #ifndef _STATE_MACHINE_H_
+#define _STATE_MACHINE_H_
+
 #include "BaseState.h"
 #include <list>
+
+class BaseState;
 
 class StateMachine
 {

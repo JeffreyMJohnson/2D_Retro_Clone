@@ -1,6 +1,8 @@
 ﻿#include "AIE.h"
 #include <iostream>
 #include "StateMachine.h"
+#include "MainMenuState.h"
+
 //for debug
 #include "GameState.h"
 #include "EndGameState.h"
@@ -26,7 +28,8 @@ int main( int argc, char* argv[] )
 
 #ifdef _DEBUG
 		//state.PushState(new GameState());
-	state.PushState(new EndGameState());
+	//state.PushState(new EndGameState());
+	state.PushState(new MainMenuState());
 #endif
 
     //Game Loop

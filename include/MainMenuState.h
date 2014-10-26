@@ -3,7 +3,15 @@
 #define _MAIN_MENU_STATE_H_
 
 #include "BaseState.h"
+#include "GameState.h"
 
+enum PRESSED_KEY
+{
+	NONE,
+	START, 
+	HIGH_SCORE,
+	QUIT
+};
 
 class MainMenuState :
 	public BaseState
@@ -19,6 +27,10 @@ public:
 
 private:
 	void Input();
+
+	unsigned int bannerSprite;
+
+	PRESSED_KEY key;
 };
 
 #endif

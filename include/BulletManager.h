@@ -13,13 +13,21 @@ public:
 
 	static void Init()
 	{
-		for (int i = 0; i < 100; i++)
-		{
-			enemyBullets.emplace_back(new Bullet("./images/bullet.png", 5, 15));
-		}
 
-		playerBullet = new Bullet("./images/bullet.png",5, 15);
-		playerBullet->Init(Point2d(), Point2d(0, 1), 0, 1, 1);
+		if (enemyBullets.size() == 0)
+		{
+			for (int i = 0; i < 100; i++)
+			{
+				enemyBullets.emplace_back(new Bullet("./images/bullet.png", 5, 15));
+			}
+
+			playerBullet = new Bullet("./images/bullet.png", 5, 15);
+			playerBullet->Init(Point2d(), Point2d(0, 1), 0, 1, 1);
+		}
+		else
+		{
+			BulletManager::AllDead();
+		}
 	}
 
 	static bool SetBullet(TYPE type, Point2d a_pos, Point2d a_velocity, float a_speed, int a_health)
@@ -76,6 +84,17 @@ public:
 			}
 		}
 
+	}
+
+	/*
+	call this to set all bullets to not alive*/
+	static void AllDead()
+	{
+		for (Bullet* bullet : enemyBullets)
+		{
+			bullet->alive = false;
+		}
+		playerBullet->alive = false;
 	}
 
 	~BulletManager()

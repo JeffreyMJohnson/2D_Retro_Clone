@@ -270,7 +270,6 @@ void GameState::Destroy()
 		DestroySprite(object->GetSpriteID());
 		delete object;
 	}
-	//DestroySprite(bulletTexture);
 }
 
 //static function to get position in grid

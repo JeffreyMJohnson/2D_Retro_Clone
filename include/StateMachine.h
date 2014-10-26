@@ -21,6 +21,8 @@ public:
 	void Update(float a_timeStep);
 	void Draw();
 
+	static bool gameOver;
+
 private:
 	std::list<BaseState*> stateStack;
 };

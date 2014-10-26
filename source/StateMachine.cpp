@@ -29,7 +29,7 @@ BaseState* StateMachine::SwitchState(BaseState* a_gameState)
 {
 	BaseState* lastState = stateStack.back();
 	lastState->Destroy();
-	
+
 	stateStack.pop_back();
 	stateStack.push_back(a_gameState);
 	a_gameState->Initialize();
@@ -44,5 +44,11 @@ void StateMachine::Update(float a_timeStep)
 
 void StateMachine::Draw()
 {
-	stateStack.back()->Draw();
+	if (!StateMachine::gameOver)
+	{
+		stateStack.back()->Draw();
+	}
+
 }
+
+bool StateMachine::gameOver = false;

@@ -33,6 +33,8 @@ void MainMenuState::Update(float a_timeStep, StateMachine* a_SMPointer)
 		
 		break;
 	case QUIT:
+		StateMachine::gameOver = true;
+		a_SMPointer->PopState();
 
 		break;
 	}
@@ -57,5 +59,10 @@ void  MainMenuState::Input()
 	if (IsKeyDown(GLFW_KEY_S))
 	{
 		key = START;
+	}
+
+	if (IsKeyDown(GLFW_KEY_Q))
+	{
+		key = QUIT;
 	}
 }

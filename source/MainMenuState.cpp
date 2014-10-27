@@ -30,7 +30,7 @@ void MainMenuState::Update(float a_timeStep, StateMachine* a_SMPointer)
 		a_SMPointer->PushState(new GameState());
 		break;
 	case HIGH_SCORE:
-		
+		a_SMPointer->PushState(new LeaderBoardState());
 		break;
 	case QUIT:
 		StateMachine::gameOver = true;
@@ -64,5 +64,10 @@ void  MainMenuState::Input()
 	if (IsKeyDown(GLFW_KEY_Q))
 	{
 		key = QUIT;
+	}
+
+	if (IsKeyDown(GLFW_KEY_D))
+	{
+		key = HIGH_SCORE;
 	}
 }

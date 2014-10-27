@@ -4,6 +4,7 @@
 
 #include "BaseState.h"
 #include "GameState.h"
+#include "LeaderBoardState.h"
 
 enum PRESSED_KEY
 {

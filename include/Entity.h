@@ -11,8 +11,6 @@ class Entity
 {
 public:
 
-
-
 	unsigned int spriteID;
 	float width;
 	float height;
@@ -42,20 +40,9 @@ public:
 	void SetHeight(float a_height);
 	float GetHeight();
 
-
-	//refactored out to CircleCollider class
-	/*void SetCollisionDx(float dx);
-	float GetCollisionDx();
-	bool isCollided(Entity* other);
-	*/
-
 	CircleCollider collider;
 
 
 	~Entity();
-
-protected:
-
-	//float collisionDx;
 };
 #endif // !_ENTITY_H_

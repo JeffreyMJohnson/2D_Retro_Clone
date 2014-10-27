@@ -155,9 +155,6 @@ private:
 	std::vector<Entity*> gameObjects;
 	std::vector<Enemy*> attackingEnemies;
 
-	//offset for bullet position in relation to player
-	float bulletYOffset;
-	std::string fontFile;
 
 	const char* scoreLabel;
 	char scoreAsString[20];
@@ -175,13 +172,6 @@ private:
 
 	int playerLives;
 	unsigned int playerLifeTextureID;
-
-	/*
-	char p1Score_s[20];
-	char highScore_s[20];
-
-	bool gameOver;
-	float gameOverTimer;*/
 };
 #endif // !_GAME_STATE_H_
 

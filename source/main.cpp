@@ -26,24 +26,17 @@ int main( int argc, char* argv[] )
 
 	StateMachine state;
 
-#ifdef _DEBUG
-		//state.PushState(new GameState());
-	//state.PushState(new EndGameState());
 	state.PushState(new MainMenuState());
-#endif
 
     //Game Loop
     do
 	{
 	   ClearScreen();
 	   float delta;
-#ifdef _DEBUG
-		   //1/60 of a sec
+	   //DEBUG::REMOVE FOR RELEASE
+	   //1/60 of a sec
 		   delta = .01666666666;
-#endif
-#ifndef _DEBUG
-		   delta = GetDeltaTime();
-#endif
+		   //delta = GetDeltaTime();
 
 	   state.Update(delta);
 	   state.Draw();

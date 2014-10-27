@@ -28,8 +28,6 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
-
-	//returnPosition = Point2d();
 }
 
 /*
@@ -119,10 +117,7 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 			float x = (returnPosition.x + (attackRadius * cos(attackAngle)));
 			float y = (returnPosition.y + (attackRadius * sin(attackAngle)));
 
-			/*float cosA = cos(attackAngle);
-			float sinA = sin(attackAngle);
-			float angleR = attackAngle;
-			float angleD = RadiansToDegrees(attackAngle);*/
+			
 			attackAngle = attackAngle + Helper::DegreeToRadians(.05f) * attackVelocity.x * attackSpeed;
 			if (Helper::RadiansToDegrees(attackAngle) <= 0)
 			{
@@ -170,7 +165,6 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 
 		if (shootTimer <= 0)
 		{
-			//std::cout << "shoot\n";
 			BulletManager::SetBullet(ENEMY, position, Point2d(0, -1), 75.0f, 1);
 			shootTimer = shootMaxTime;
 
@@ -182,7 +176,6 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 
 
 		//increment x
-		//if (position.y > attackExitPoint.y && position.x < attackExitPoint.x)
 		if (position.y > attackExitPoint.y)
 		{
 			float x = position.x + attackSpeed * attackVelocity.x * timeDelta;
@@ -204,7 +197,6 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 		attackVelocity = Point2d(attackVelocity.x, -1);
 		if (position.y > gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex).y)
 		{
-			//position = Point2d(position.x, position.y + (attackSpeed * attackVelocity.y * timeDelta));
 			position = Point2d(gameState->GetEnemyGroupPosition(colPositionIndex, rowPositionIndex).x, 
 						position.y + (attackSpeed * attackVelocity.y * timeDelta));
 		}
@@ -320,17 +312,6 @@ float Enemy::GetAttackRadius()
 	return attackRadius;
 }
 
-//void Enemy::SetOriginalPos(Point2d a_point)
-//{
-//	returnPosition = a_point;
-//}
-//
-//Point2d Enemy::GetreturnPosition()
-//{
-//	return returnPosition;
-//
-//}
-
 void Enemy::SetAttackState(attackStates a_state)
 {
 	attackState = a_state;
@@ -350,15 +331,6 @@ Point2d Enemy::GetAttackExitPoint()
 {
 	return attackExitPoint;
 }
-
-//void Enemy::SetReturnPosition(Point2d point)
-//{
-//	returnPosition = point;
-//}
-//Point2d Enemy::GetReturnPosition()
-//{
-//	return returnPosition;
-//}
 
 
 Enemy::~Enemy()

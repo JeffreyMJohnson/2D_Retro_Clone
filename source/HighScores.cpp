@@ -102,5 +102,3 @@ const int HighScores::GetHighScore()
 	}
 }
 
-//PRIVATE FUNCTIONS
-

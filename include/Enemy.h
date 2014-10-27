@@ -68,7 +68,6 @@ public:
 	bool operator!=(Enemy& other);
 
 	//Initialize enemy with position, velocity, collider radius, health, speed, colIndex, rowIndex and alive
-	//void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed);
 	void Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health, float a_speed, int a_colIndex, int a_rowIndex);
 
 	//handle shooting
@@ -111,9 +110,6 @@ public:
 	void SetAttackState(attackStates a_state);
 	attackStates GetAttackState();
 
-	//void SetReturnPosition(Point2d point);
-	//Point2d GetReturnPosition();
-
 	~Enemy();
 
 
@@ -122,7 +118,6 @@ private:
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
 	int scoreValue;
-	//Point2d returnPosition;
 	float attackAngle;
 	float attackRadius;
 	Point2d attackExitPoint;

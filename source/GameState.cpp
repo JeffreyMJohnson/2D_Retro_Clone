@@ -14,14 +14,16 @@ int BaseState::score;
 //PUBLIC FUNCTIONS
 GameState::GameState()
 {
+	//debug
+	playerLives = 1;
+
 	gameOver = false;
 	scoreLabel = "1UP";
 	highScoreLabel = "HIGH SCORE";
 	scorePos = Point2d(screenWidth * .1f, screenHeight);
 	highScorePos = Point2d(screenWidth * .5f - 75.0f, screenHeight);
 	BaseState::score = 0;
-	//debug
-	playerLives = 1;
+
 	playerLifeTextureID = CreateSprite("./images/misc/user_life_sprite.png", 35.0f, 41.0f, true);
 	srand(time(nullptr));
 	sendAttack = false;
@@ -67,9 +69,6 @@ void GameState::Initialize()
 
 	//init timer for enemy attacking player
 	attackTimer = attackTimeMax;
-
-	//need?
-	fontFile = "./fonts/galaxian.fnt";
 
 
 	HighScores scores;
@@ -219,35 +218,6 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	}
 
 	BulletManager::Update(a_timestep);
-
-
-
-	////escape key
-	//if (IsKeyDown(256))
-	//{
-	//	BaseState* lastState = a_SMPointer->PopState();
-	//	delete lastState;
-	//	return;
-	//}
-
-	//if (gameOver)
-	//{
-	//	gameOverTimer -= a_timestep;
-	//	if (gameOverTimer <= 0)
-	//	{
-	//		LeaderboardState* leaderBoard = new LeaderboardState();
-	//		leaderBoard->SetPlayersScore(score);
-	//		BaseState* lastState = a_SMPointer->SwitchState(leaderBoard);
-	//		delete lastState;
-	//	}
-	//	return;
-	//}
-
-	/*if (allDead)
-	{
-	gameOver = true;
-	return;
-	}*/
 }
 
 /*
@@ -323,7 +293,7 @@ void GameState::CreateEnemies()
 			Enemy* enemy = new Enemy("./images/blue_enemy/blue_enemy_1.png", 35, 25);
 			//initialize position
 			enemy->Init(Point2d(enemyColPositions[colIndex], enemyRowPositions[rowIndex]), Point2d(1, 0), 25, 30, 2.5f, colIndex, rowIndex);
-			
+
 			enemy->SetScoreValue(30);
 			enemy->player = dynamic_cast<Player*>(gameObjects[0]);
 
@@ -366,7 +336,7 @@ bullet player collision logic, and enemy player collision logic
 */
 void GameState::PlayerLogic(Player* a_player, float a_delta)
 {
-	
+
 	if (a_player->alive)
 	{
 		//check if player hit by bullet
@@ -418,8 +388,6 @@ void GameState::PlayerDeath(Player* player)
 	else
 	{
 		gameOver = true;
-		//game over
-		
 	}
 }
 
@@ -428,16 +396,13 @@ Helper function for attacking enemies
 */
 void GameState::ChooseAttackers()
 {
-	//HACK::using float math with large delta because of problem keeping attacking enemy starting positions synced.  Not good, needs to be fixed.
-	float delta = .0001f;
+	float delta = .01f;
 	for (auto entity : gameObjects)
 	{
 		if (dynamic_cast<Enemy*>(entity) != 0)
 		{
 			Enemy* enemy = dynamic_cast<Enemy*>(entity);
 			//if direction is left (1) then use the min column else use the max
-			/*if ((attackVelocity.x == 1 && enemy->position.x == enemyColMinX) ||
-				(attackVelocity.x == -1 && enemy->position.x == enemyColMaxX))*/
 			if ((attackVelocity.x == 1 && Helper::FloatEquals(enemy->position.x, enemyColMinX, delta) ||
 				(attackVelocity.x == -1 && Helper::FloatEquals(enemy->position.x, enemyColMaxX, delta))))
 			{
@@ -634,9 +599,6 @@ void GameState::GetAttackDirection()
 void GameState::DrawUI()
 {
 
-	SetFont(fontFile.c_str());
-	//1up string above score;
-	//SetFont("./fonts/galaxian.fnt");
 	DrawString(scoreLabel, scorePos.x, scorePos.y);
 	sprintf(scoreAsString, "%05d", BaseState::score);
 	DrawString(scoreAsString, scorePos.x, scorePos.y - 25, SColour(255, 0, 0, 255));

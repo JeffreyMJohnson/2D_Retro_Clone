@@ -2,9 +2,6 @@
 
 Player::Player(char* filePath, float a_width, float a_height)
 {
-	/*width = 64;
-	height = 32;*/
-
 	width = a_width;
 	height = a_height;
 
@@ -12,15 +9,6 @@ Player::Player(char* filePath, float a_width, float a_height)
 	spriteID_A = CreateSprite(filePath, a_width, a_height, true);
 	spriteId_B = CreateSprite("./images/player/galaxian_b2.png", 46.0f, 69.0f, true);
 	spriteID = spriteID_A;
-	////start position
-	//SetPosition(0, 0);
-
-	//shootKey = 32;//space key
-	////currentReloadBulletTime = 0.0f;
-	////maxBulletReloadTime = .25f;
-
-	////AddScore(0);
-
 }
 
 //initialize player with position, velocity, radius (collider),health, speed and alive
@@ -78,8 +66,6 @@ void Player::Input()
 //handle shooting
 void Player::Shoot()
 {
-	//BulletManager::playerBullet->velocity = Point2d(0, 1);
-	//BulletManager::playerBullet->alive = true;
 	BulletManager::SetBullet(PLAYER, Point2d(position.x, position.y + 20.0f), Point2d(0, 1), 50.0f, 1);
 }
 
@@ -105,13 +91,6 @@ void Player::Update(float a_delta)
 		position.y += velocity.y * speed * a_delta;
 
 		MoveSprite(spriteID, position.x, position.y);
-
-		//if (!BulletManager::playerBullet->alive)
-		//{
-		//	//set bullet makes bullet alive but want it dead here until player shoots
-		//	BulletManager::SetBullet(PLAYER, Point2d(position.x, (position.y + 30)), Point2d(), 100, 1);
-		//	BulletManager::playerBullet->alive = false;
-		//}
 
 		collider.center = position;
 	}
@@ -193,16 +172,6 @@ unsigned int Player::GetRightMovementExtreme()
 {
 	return rightMovementExtreme;
 }
-
-//int Player::GetScore()
-//{
-//	return score;
-//}
-//
-//char * Player::GetScoreAsString()
-//{
-//	return scoreAsString;
-//}
 
 Player::~Player()
 {

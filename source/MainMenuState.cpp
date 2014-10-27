@@ -35,7 +35,6 @@ void MainMenuState::Update(float a_timeStep, StateMachine* a_SMPointer)
 	case QUIT:
 		StateMachine::gameOver = true;
 		a_SMPointer->PopState();
-
 		break;
 	}
 

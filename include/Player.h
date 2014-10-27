@@ -67,28 +67,18 @@ public:
 
 	void SetRightMovementExtreme(unsigned int a_movementExtreme);
 	unsigned int GetRightMovementExtreme();
-	
-	//int GetScore();
-	//char* GetScoreAsString();
 
 	~Player();
 
 	unsigned int shootKey;
 
 private:
-	//float speed;
 	int health;
 	unsigned int moveLeftKey;
 	unsigned int moveRightKey;
 	
 	unsigned int leftMovementExtreme;
 	unsigned int rightMovementExtreme;
-
-
-	//offset for bullet position in relation to player
-	float bulletYOffset;
-	/*float currentReloadBulletTime;
-	float maxBulletReloadTime;*/
 	
 
 };

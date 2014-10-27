@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include "Bullet.h"
 #include "EndGameState.h"
+#include "HighScores.h"
 #include <vector>
 #include <string>
 #include <time.h>

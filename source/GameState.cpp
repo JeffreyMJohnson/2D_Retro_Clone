@@ -20,7 +20,6 @@ GameState::GameState()
 	scorePos = Point2d(screenWidth * .1f, screenHeight);
 	highScorePos = Point2d(screenWidth * .5f - 75.0f, screenHeight);
 	BaseState::score = 0;
-	highScore = 10000;
 	//debug
 	playerLives = 1;
 	playerLifeTextureID = CreateSprite("./images/misc/user_life_sprite.png", 35.0f, 41.0f, true);
@@ -52,7 +51,8 @@ Called by machine state once on starting this state
 */
 void GameState::Initialize()
 {
-	//gameOver = false; 
+	//score is static so make sure it's 0
+	BaseState::score = 0;
 
 	//initialize bulletManager static class
 	BulletManager::Init();
@@ -72,17 +72,16 @@ void GameState::Initialize()
 	fontFile = "./fonts/galaxian.fnt";
 
 
-	//Highscores scores;
-	//scores.LoadScores();
-	//if (scores.IsEmpty())
-	//{
-	//	highScore = 0;
-	//}
-	//else
-	//{
-	//	scores.SortScores();
-	//	highScore = *scores.GetScores().begin();
-	//}
+	HighScores scores;
+	scores.LoadScores();
+	if (scores.IsEmpty())
+	{
+		highScore = 0;
+	}
+	else
+	{
+		highScore = scores.GetHighScore();
+	}
 }
 
 /*
@@ -90,9 +89,6 @@ called by machine state each frame
 */
 void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 {
-	//must switch state at end of update, use gameOver flag here and sniff at end of function
-
-
 	//if here and player dead must be more lives so run timer to start again
 	if (!player->alive)
 	{
@@ -166,14 +162,14 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 	}
 
 
-
+	//new level flag
 	bool allEnemyDead = true;
 	for (auto object : gameObjects)
 	{
-		//object->Update(a_timestep);
 		if (dynamic_cast<Enemy*>(object) != 0)
 		{
 			Enemy* enemy = dynamic_cast<Enemy*>(object);
+
 			enemy->Update(a_timestep, this);
 
 			if (enemy->alive)
@@ -187,10 +183,18 @@ void GameState::Update(float a_timestep, StateMachine* a_SMPointer)
 		if (dynamic_cast<Player*>(object) != 0)
 		{
 			object->Update(a_timestep);
+
 			//this may set gameOver flag so check after returns
 			PlayerLogic(dynamic_cast<Player*>(object), a_timestep);
 			if (gameOver)
 			{
+				//add score to high score list and then sort and save
+				HighScores scores;
+				scores.LoadScores();
+				scores.AddScore(BaseState::score);
+				scores.SortScores();
+				scores.SaveScores();
+
 				a_SMPointer->SwitchState(new EndGameState());
 				return;
 			}

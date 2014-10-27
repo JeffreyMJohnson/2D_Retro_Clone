@@ -103,6 +103,7 @@
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\MainMenuState.cpp" />
     <ClCompile Include="source\Player.cpp" />
+    <ClCompile Include="source\SplashScreenState.cpp" />
     <ClCompile Include="source\StateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +119,7 @@
     <ClInclude Include="include\LeaderBoardState.h" />
     <ClInclude Include="include\MainMenuState.h" />
     <ClInclude Include="include\Player.h" />
+    <ClInclude Include="include\SplashScreenState.h" />
     <ClInclude Include="include\StateMachine.h" />
     <ClInclude Include="include\Utility.h" />
   </ItemGroup>

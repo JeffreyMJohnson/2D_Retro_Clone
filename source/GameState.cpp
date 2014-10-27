@@ -14,8 +14,7 @@ int BaseState::score;
 //PUBLIC FUNCTIONS
 GameState::GameState()
 {
-	//debug
-	playerLives = 1;
+	playerLives = 3;
 
 	gameOver = false;
 	scoreLabel = "1UP";
@@ -36,10 +35,12 @@ GameState::GameState()
 	attackVelocity = Point2d(-1, 1);
 	attackingEnemy = nullptr;
 
-	restartTimer = 15.0f;
+	restartTimer = 5.0f;
 	currentRestartTime = 0.0f;
 	enemyGroupVelocity = Point2d(1, 0);
-	enemyGroupSpeed = 1.0f;
+
+
+	enemyGroupSpeed = 20.0f;
 
 }
 
@@ -60,7 +61,7 @@ void GameState::Initialize()
 	BulletManager::Init();
 
 	player = new Player("./images/player/galaxian_a.png", 46.0f, 69.0f);
-	player->Init(Point2d(screenWidth * 0.5f, 100.0f), Point2d(), 10.0f, 1);
+	player->Init(Point2d(screenWidth * 0.5f, 100.0f), Point2d(), 25.0f, 1);
 
 	gameObjects.push_back(player);
 
@@ -292,7 +293,7 @@ void GameState::CreateEnemies()
 		{
 			Enemy* enemy = new Enemy("./images/blue_enemy/blue_enemy_1.png", 35, 25);
 			//initialize position
-			enemy->Init(Point2d(enemyColPositions[colIndex], enemyRowPositions[rowIndex]), Point2d(1, 0), 25, 30, 2.5f, colIndex, rowIndex);
+			enemy->Init(Point2d(enemyColPositions[colIndex], enemyRowPositions[rowIndex]), Point2d(1, 0), 25, 30, 10.0f, colIndex, rowIndex);
 
 			enemy->SetScoreValue(30);
 			enemy->player = dynamic_cast<Player*>(gameObjects[0]);

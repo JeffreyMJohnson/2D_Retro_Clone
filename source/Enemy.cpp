@@ -1,5 +1,4 @@
 #include "Enemy.h"
-#include <iostream>
 
 
 int Enemy::activeEnemyCount = 0;
@@ -14,17 +13,19 @@ Enemy::Enemy(const char* filePath, float a_width, float a_height)
 
 	activeEnemyCount++;
 	isAttacking = false;
-	//in radians so convert;
+	//in radians so convert!
 	attackAngle = Helper::DegreeToRadians(90.0f);
-	attackRadius = 50.0f;
+	attackRadius = 30.0f;
 	attackState = MOVE;
 	attackExitPoint = Point2d();
 	attackExitChosen = false;
 	attackSlope = 0.0f;
 	attackYIntercept = 0.0f;
 	attackVelocity = Point2d();
-	attackSpeed = 15.0f;
-	shootMaxTime = 1.75f;
+
+
+	attackSpeed = 40.0f;
+	shootMaxTime = .75f;
 	shootTimer = shootMaxTime;
 
 	player = nullptr;
@@ -60,6 +61,7 @@ void Enemy::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_health
 	rowPositionIndex = a_rowIndex;
 }
 
+//standard update done with enemy group control in GameState.cpp
 void Enemy::Update(float a_delta)
 {
 
@@ -91,7 +93,7 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 	switch (attackState)
 	{
 	case WAIT:
-		//std::cout << "waiting....\n";
+		//waiting to be sent on attack
 		break;
 	case MOVE:
 		//if (position.y < returnPosition.y + attackRadius)
@@ -135,6 +137,7 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 		}
 		break;
 	case ATTACK:
+		//need player to calculate exit point
 		assert(player != nullptr && player != 0);
 
 
@@ -165,7 +168,7 @@ void Enemy::Attack(float timeDelta, GameState* gameState)
 
 		if (shootTimer <= 0)
 		{
-			BulletManager::SetBullet(ENEMY, position, Point2d(0, -1), 75.0f, 1);
+			BulletManager::SetBullet(ENEMY, position, Point2d(0, -1), 300.0f, 1);
 			shootTimer = shootMaxTime;
 
 		}

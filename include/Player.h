@@ -6,22 +6,6 @@
 #include "Entity.h"
 #include "Utility.h"
 #include "BulletManager.h"
-#include <iostream>
-
-struct Score
-{
-	int value;
-	std::string value_s;
-
-	char* ToString()
-	{
-		char buff[6];
-		sprintf(buff, "%010d", value);
-		return buff;
-	}
-};
-
-const int MAX_BULLETS = 20;
 
 class Player : public Entity
 {
@@ -41,44 +25,14 @@ public:
 	//handle shooting
 	void Shoot();
 
-	//convenience functions
-	void SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight);
-	void SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme);
-
 	//Must implement these methods before can instantiate class
 	void Update(float a_delta);
 	void Draw();
 
-
-	
-	//standard setters/getters
-
-	void SetMoveLeftKey(unsigned int a_moveKey);
-	unsigned int GetLeftMoveKey();
-
-	void SetMoveRightgKey(unsigned int a_moveKey);
-	unsigned int GetMoveRightKey();
-
-	void SetShootKey(unsigned int a_shootKey);
-	unsigned int GetShootKey();
-
-	void SetLeftMovementExtreme(unsigned int a_movementExtreme);
-	unsigned int GetLeftMovementExtreme();
-
-	void SetRightMovementExtreme(unsigned int a_movementExtreme);
-	unsigned int GetRightMovementExtreme();
-
 	~Player();
-
-	unsigned int shootKey;
 
 private:
 	int health;
-	unsigned int moveLeftKey;
-	unsigned int moveRightKey;
-	
-	unsigned int leftMovementExtreme;
-	unsigned int rightMovementExtreme;
 	
 
 };

@@ -18,7 +18,8 @@ void Player::Init(Point2d a_pos, Point2d a_velocity, float a_radius, int a_healt
 	velocity = a_velocity;
 	collider.radius = a_radius;
 	health = a_health;
-	speed = 25.0f;
+
+	speed = 50.0f;
 	alive = true;
 
 }
@@ -66,19 +67,7 @@ void Player::Input()
 //handle shooting
 void Player::Shoot()
 {
-	BulletManager::SetBullet(PLAYER, Point2d(position.x, position.y + 20.0f), Point2d(0, 1), 50.0f, 1);
-}
-
-void Player::SetMovementKeys(unsigned int a_moveLeft, unsigned int a_moveRight)
-{
-	moveLeftKey = a_moveLeft;
-	moveRightKey = a_moveRight;
-}
-
-void Player::SetMovementExtremes(unsigned int a_leftExtreme, unsigned int a_rightExtreme)
-{
-	leftMovementExtreme = a_leftExtreme;
-	rightMovementExtreme = a_rightExtreme;
+	BulletManager::SetBullet(PLAYER, Point2d(position.x, position.y + 20.0f), Point2d(0, 1), 300.0f, 1);
 }
 
 void Player::Update(float a_delta)
@@ -123,55 +112,7 @@ void Player::Draw()
 
 }
 
-void Player::SetMoveLeftKey(unsigned int a_moveKey)
-{
-	moveLeftKey = a_moveKey;
-}
 
-unsigned int Player::GetLeftMoveKey()
-{
-	return moveLeftKey;
-}
-
-void Player::SetMoveRightgKey(unsigned int a_moveKey)
-{
-	moveRightKey = a_moveKey;
-}
-
-unsigned int Player::GetMoveRightKey()
-{
-	return moveRightKey;
-}
-
-void Player::SetShootKey(unsigned int a_shootKey)
-{
-	shootKey = a_shootKey;
-}
-
-unsigned int Player::GetShootKey()
-{
-	return shootKey;
-}
-
-void Player::SetLeftMovementExtreme(unsigned int a_movementExtreme)
-{
-	leftMovementExtreme = a_movementExtreme;
-}
-
-unsigned int Player::GetLeftMovementExtreme()
-{
-	return leftMovementExtreme;
-}
-
-void Player::SetRightMovementExtreme(unsigned int a_movementExtreme)
-{
-	rightMovementExtreme = a_movementExtreme;
-}
-
-unsigned int Player::GetRightMovementExtreme()
-{
-	return rightMovementExtreme;
-}
 
 Player::~Player()
 {

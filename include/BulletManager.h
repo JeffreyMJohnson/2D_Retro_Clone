@@ -18,7 +18,10 @@ public:
 		{
 			for (int i = 0; i < 100; i++)
 			{
-				enemyBullets.emplace_back(new Bullet("./images/bullet.png", 5, 15));
+				Bullet* enemyBullet = new Bullet("./images/bullet.png", 5, 15);
+				enemyBullet->Init(Point2d(), Point2d(0, -1), 10.0f, 1, 1);
+				enemyBullets.emplace_back(enemyBullet);
+				//enemyBullets.emplace_back(new Bullet("./images/bullet.png", 5, 15));
 			}
 
 			playerBullet = new Bullet("./images/bullet.png", 5, 15);
